@@ -128,9 +128,9 @@ function SimControls() {
           <span>속도</span>
           <input
             type="range"
-            min={0.5}
+            min={0.25}
             max={8}
-            step={0.5}
+            step={0.25}
             value={speedHz}
             onChange={(e) => setSpeed(parseFloat(e.target.value))}
           />

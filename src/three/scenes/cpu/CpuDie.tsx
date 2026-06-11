@@ -13,9 +13,9 @@ const Y = 0.34; // 펄스가 달리는 높이
 const POS = {
   rom: [-2.0, -1.05] as const,
   sram: [-2.0, 1.05] as const,
-  cu: [-0.2, -1.15] as const,
-  pc: [0.62, -1.5] as const,
-  ir: [0.62, -0.85] as const,
+  cu: [-0.5, -1.15] as const,
+  pc: [0.55, -1.55] as const,
+  ir: [0.55, -0.75] as const,
   alu: [1.85, -1.05] as const,
   reg: [1.7, 1.0] as const,
 };
@@ -83,17 +83,17 @@ function SimFx() {
   const pcMat = useRef<THREE.MeshStandardMaterial>(null);
   const aluMat = useRef<THREE.MeshStandardMaterial>(null);
 
-  const flash = (mat: THREE.MeshStandardMaterial | null, color: string, intensity = 2.2) => {
+  // 클럭이 느릴수록 플래시도 천천히 사그라들도록 지속시간을 속도에 비례
+  const flash = (mat: THREE.MeshStandardMaterial | null, color: string, intensity = 2.2, holdMs = 280) => {
     if (!mat) return;
     mat.emissive.set(color);
     mat.emissiveIntensity = intensity;
-    // 감쇠는 setTimeout 단계로 (가벼움)
     window.setTimeout(() => {
       mat.emissiveIntensity *= 0.4;
-    }, 280);
+    }, holdMs);
     window.setTimeout(() => {
       mat.emissiveIntensity = 0.06;
-    }, 560);
+    }, holdMs * 2);
   };
 
   useEffect(
@@ -110,7 +110,9 @@ function SimFx() {
           }
           const ev = state.lastEvent;
           const speed = useSimStore.getState().speedHz;
-          const dur = Math.min(0.45, (1 / speed) * 0.7);
+          // 한 클럭 주기의 ~70%를 펄스 이동에 사용 — 0.25Hz면 2.8초 동안 천천히 이동
+          const dur = Math.min(3.0, 0.7 / speed);
+          const holdMs = Math.min(1600, 350 / speed);
 
           // 모든 스텝: 명령어 페치 ROM → IR (XIP)
           fetchPulse.current?.fire(path(POS.rom, POS.ir), '#ffb454', dur);
@@ -120,36 +122,42 @@ function SimFx() {
           romStripes.current.forEach((m, i) => {
             if (m) m.emissiveIntensity = i === state.pc % stripeCount ? 1.8 : 0.06;
           });
-          flash(pcMat.current, '#ffb454', 1.8);
+          flash(pcMat.current, '#ffb454', 1.8, holdMs);
 
           switch (ev.kind) {
             case 'ldr':
               dataPulse.current?.fire(path(POS.sram, POS.reg), '#7ee787', dur);
-              flash(sramTiles.current[(ev.addr / 4) % 16], '#7ee787');
-              window.setTimeout(() => flash(regTiles.current[ev.rt], '#7ee787'), dur * 800);
+              flash(sramTiles.current[(ev.addr / 4) % 16], '#7ee787', 2.2, holdMs);
+              window.setTimeout(
+                () => flash(regTiles.current[ev.rt], '#7ee787', 2.2, holdMs),
+                dur * 900,
+              );
               break;
             case 'str':
               dataPulse.current?.fire(path(POS.reg, POS.sram), '#7ee787', dur);
-              flash(regTiles.current[ev.rt], '#7ee787');
-              window.setTimeout(() => flash(sramTiles.current[(ev.addr / 4) % 16], '#7ee787'), dur * 800);
+              flash(regTiles.current[ev.rt], '#7ee787', 2.2, holdMs);
+              window.setTimeout(
+                () => flash(sramTiles.current[(ev.addr / 4) % 16], '#7ee787', 2.2, holdMs),
+                dur * 900,
+              );
               break;
             case 'alu':
-              dataPulse.current?.fire(path(POS.reg, POS.alu), '#4cc8ff', dur * 0.6);
-              flash(aluMat.current, '#4cc8ff', 1.4);
+              dataPulse.current?.fire(path(POS.reg, POS.alu), '#4cc8ff', dur * 0.55);
+              flash(aluMat.current, '#4cc8ff', 1.4, holdMs);
               window.setTimeout(() => {
-                resultPulse.current?.fire(path(POS.alu, POS.reg), '#ffb454', dur * 0.6);
-                flash(regTiles.current[ev.rd], '#ffb454');
-              }, dur * 650);
+                resultPulse.current?.fire(path(POS.alu, POS.reg), '#ffb454', dur * 0.55);
+                flash(regTiles.current[ev.rd], '#ffb454', 2.2, holdMs);
+              }, dur * 600);
               break;
             case 'cmp':
-              dataPulse.current?.fire(path(POS.reg, POS.alu), '#4cc8ff', dur * 0.6);
-              flash(aluMat.current, '#4cc8ff', 1.4);
+              dataPulse.current?.fire(path(POS.reg, POS.alu), '#4cc8ff', dur * 0.55);
+              flash(aluMat.current, '#4cc8ff', 1.4, holdMs);
               break;
             case 'mov':
-              flash(regTiles.current[ev.rd], '#ffb454');
+              flash(regTiles.current[ev.rd], '#ffb454', 2.2, holdMs);
               break;
             case 'branch':
-              if (ev.taken) flash(pcMat.current, '#ff7a59', 2.6);
+              if (ev.taken) flash(pcMat.current, '#ff7a59', 2.6, holdMs);
               break;
             case 'vec-sp':
             case 'vec-pc':
@@ -225,7 +233,7 @@ function SimFx() {
 
       {/* PC / ALU 본체 플래시 대상 (블록 위 얇은 캡) */}
       <mesh position={[POS.pc[0], 0.42, POS.pc[1]]} userData={{ noHighlight: true }}>
-        <boxGeometry args={[0.55, 0.04, 0.32]} />
+        <boxGeometry args={[0.42, 0.04, 0.3]} />
         <meshStandardMaterial
           ref={pcMat}
           color="#39424f"
@@ -265,7 +273,7 @@ export function CpuDie() {
         <boxGeometry args={[5.8, 0.06, 0.5]} />
         <meshStandardMaterial color="#1f2735" emissive="#4cc8ff" emissiveIntensity={0.18} roughness={0.4} />
       </mesh>
-      <Label3D position={[0, 0.32, 0]} small>
+      <Label3D position={[-1.2, 0.32, 0]} small>
         시스템 버스 (Bus)
       </Label3D>
       {/* 버스 스터브 */}
@@ -290,17 +298,17 @@ export function CpuDie() {
       </Selectable>
       <Label3D position={[POS.sram[0], 0.75, POS.sram[1]]}>SRAM</Label3D>
 
-      {/* ===== 제어 장치 + IR ===== */}
-      <Block x={POS.cu[0]} z={POS.cu[1]} w={1.15} d={0.85} color="#3a3148" />
-      <Label3D position={[POS.cu[0], 0.7, POS.cu[1] - 0.2]} small>
+      {/* ===== 제어 장치 + IR + PC — 서로 떨어뜨려 라벨이 겹치지 않게 ===== */}
+      <Block x={POS.cu[0]} z={POS.cu[1]} w={0.95} d={0.85} color="#3a3148" />
+      <Label3D position={[POS.cu[0], 0.65, POS.cu[1] - 0.65]} small>
         제어 장치 (CU)
       </Label3D>
-      <Block x={POS.ir[0]} z={POS.ir[1]} w={0.55} d={0.4} h={0.26} color="#46324a" />
-      <Label3D position={[POS.ir[0] + 0.05, 0.62, POS.ir[1] + 0.32]} small>
+      <Block x={POS.ir[0]} z={POS.ir[1]} w={0.5} d={0.38} h={0.26} color="#46324a" />
+      <Label3D position={[POS.ir[0], 0.5, POS.ir[1] + 0.42]} small>
         IR
       </Label3D>
-      <Block x={POS.pc[0]} z={POS.pc[1]} w={0.55} d={0.4} h={0.26} color="#4a3a2c" />
-      <Label3D position={[POS.pc[0] + 0.05, 0.62, POS.pc[1] - 0.35]} small>
+      <Block x={POS.pc[0]} z={POS.pc[1]} w={0.5} d={0.38} h={0.26} color="#4a3a2c" />
+      <Label3D position={[POS.pc[0], 0.5, POS.pc[1] - 0.42]} small>
         PC
       </Label3D>
 

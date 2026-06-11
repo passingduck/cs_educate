@@ -49,7 +49,7 @@ export const useSimStore = create<SimStore>()(
       asm: null,
       state: null,
       running: false,
-      speedHz: 2,
+      speedHz: 0.5,
 
       load: (key) => {
         clearTimer();
