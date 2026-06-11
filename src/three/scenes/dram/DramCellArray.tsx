@@ -27,35 +27,44 @@ export function DramCellArray() {
   const [hoverRow, setHoverRow] = useState<number | null>(null);
   const animStart = useRef(0);
   const caps = useRef<THREE.InstancedMesh>(null);
+  const trs = useRef<THREE.InstancedMesh>(null);
   const pulses = useRef<THREE.Group>(null);
   const amps = useRef<(THREE.MeshStandardMaterial | null)[]>([]);
 
-  // 셀 위치 배치 (1회)
+  // 셀 위치 배치 (1회): 커패시터 + 액세스 트랜지스터(워드라인 쪽으로 살짝 비킴)
   useEffect(() => {
     const m = new THREE.Matrix4();
     for (let r = 0; r < ROWS; r++) {
       for (let c = 0; c < COLS; c++) {
         const i = r * COLS + c;
-        m.setPosition(cellX(c), 0.22, cellZ(r));
+        m.setPosition(cellX(c), 0.24, cellZ(r) + 0.12);
         caps.current?.setMatrixAt(i, m);
         caps.current?.setColorAt(i, DIM);
+        m.setPosition(cellX(c), 0.1, cellZ(r) - 0.08);
+        trs.current?.setMatrixAt(i, m);
+        trs.current?.setColorAt(i, DIM);
       }
     }
-    if (caps.current) {
-      caps.current.instanceMatrix.needsUpdate = true;
-      if (caps.current.instanceColor) caps.current.instanceColor.needsUpdate = true;
+    for (const mesh of [caps.current, trs.current]) {
+      if (mesh) {
+        mesh.instanceMatrix.needsUpdate = true;
+        if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
+      }
     }
   }, []);
 
   // 행 활성화: 해당 행 셀 색 변경
   useEffect(() => {
-    if (!caps.current) return;
     for (let r = 0; r < ROWS; r++) {
       for (let c = 0; c < COLS; c++) {
-        caps.current.setColorAt(r * COLS + c, r === activeRow ? LIT : DIM);
+        const color = r === activeRow ? LIT : DIM;
+        caps.current?.setColorAt(r * COLS + c, color);
+        trs.current?.setColorAt(r * COLS + c, color);
       }
     }
-    if (caps.current.instanceColor) caps.current.instanceColor.needsUpdate = true;
+    for (const mesh of [caps.current, trs.current]) {
+      if (mesh?.instanceColor) mesh.instanceColor.needsUpdate = true;
+    }
     animStart.current = performance.now();
   }, [activeRow]);
 
@@ -86,10 +95,14 @@ export function DramCellArray() {
         <meshStandardMaterial color={COLORS.die} roughness={0.4} metalness={0.35} />
       </mesh>
 
-      {/* 커패시터+트랜지스터 셀 (인스턴스) */}
+      {/* 셀 = 커패시터(원통) + 액세스 트랜지스터(납작 박스) 인스턴스 */}
       <instancedMesh ref={caps} args={[undefined, undefined, ROWS * COLS]} userData={{ noHighlight: true }}>
         <cylinderGeometry args={[0.09, 0.07, 0.34, 10]} />
         <meshStandardMaterial roughness={0.35} metalness={0.4} emissive="#4cc8ff" emissiveIntensity={0.12} />
+      </instancedMesh>
+      <instancedMesh ref={trs} args={[undefined, undefined, ROWS * COLS]} userData={{ noHighlight: true }}>
+        <boxGeometry args={[0.16, 0.08, 0.12]} />
+        <meshStandardMaterial roughness={0.45} metalness={0.35} emissive="#4cc8ff" emissiveIntensity={0.08} />
       </instancedMesh>
 
       {/* 워드라인 (가로, 행 단위) — 클릭으로 행 활성화 */}
@@ -122,13 +135,20 @@ export function DramCellArray() {
         </mesh>
       ))}
 
-      {/* 비트라인 (세로, 열 단위) */}
-      {Array.from({ length: COLS }, (_, c) => (
-        <mesh key={c} position={[cellX(c), 0.0, (Z0 + SENSE_Z - SPACING) / 2 + SPACING / 2]} userData={{ noHighlight: true }}>
-          <boxGeometry args={[0.05, 0.05, SENSE_Z - Z0 + 0.6]} />
-          <meshStandardMaterial color="#2d3542" roughness={0.5} metalness={0.4} />
-        </mesh>
-      ))}
+      {/* 비트라인 (세로, 열 단위) — 첫 행 직전부터 감지 증폭기까지 정확히 */}
+      {Array.from({ length: COLS }, (_, c) => {
+        const zStart = Z0 - 0.3;
+        const zEnd = SENSE_Z - 0.25;
+        return (
+          <mesh key={c} position={[cellX(c), 0.0, (zStart + zEnd) / 2]} userData={{ noHighlight: true }}>
+            <boxGeometry args={[0.05, 0.05, zEnd - zStart]} />
+            <meshStandardMaterial color="#2d3542" roughness={0.5} metalness={0.4} />
+          </mesh>
+        );
+      })}
+      <Label3D position={[X0 - 1.3, 0.25, SENSE_Z - 1.6]} small>
+        ↓ 비트라인 (열·Column)
+      </Label3D>
 
       {/* 비트라인 펄스 (행 → 감지 증폭기) */}
       <group ref={pulses} visible={false}>

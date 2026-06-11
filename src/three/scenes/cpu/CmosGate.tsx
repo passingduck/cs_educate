@@ -34,6 +34,15 @@ function Transistor({
           roughness={0.4}
         />
       </mesh>
+      {/* 소스/드레인 리드 (위·아래 단자) */}
+      <mesh position={[0, 0.5, 0]}>
+        <boxGeometry args={[0.09, 0.18, 0.09]} />
+        <meshStandardMaterial color="#7d838c" metalness={0.7} roughness={0.4} />
+      </mesh>
+      <mesh position={[0, -0.5, 0]}>
+        <boxGeometry args={[0.09, 0.18, 0.09]} />
+        <meshStandardMaterial color="#7d838c" metalness={0.7} roughness={0.4} />
+      </mesh>
       {/* 게이트 플레이트 */}
       <mesh position={[-0.32, 0, 0]}>
         <boxGeometry args={[0.08, 0.7, 0.2]} />

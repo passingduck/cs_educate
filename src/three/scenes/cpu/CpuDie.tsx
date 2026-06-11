@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import * as THREE from 'three';
 import { Selectable } from '../../Selectable';
 import { Label3D } from '../shared/Label3D';
@@ -26,6 +26,28 @@ const path = (a: readonly [number, number], b: readonly [number, number]): [numb
   [b[0], Y, 0],
   [b[0], Y, b[1]],
 ];
+
+/** 교과서의 ALU 기호(위가 넓고 가운데 패인 사다리꼴)를 다이 위에 눕힌 형태 */
+function AluShape() {
+  const geometry = useMemo(() => {
+    const s = new THREE.Shape();
+    s.moveTo(-0.78, 0.55);
+    s.lineTo(-0.16, 0.55);
+    s.lineTo(0, 0.28);
+    s.lineTo(0.16, 0.55);
+    s.lineTo(0.78, 0.55);
+    s.lineTo(0.45, -0.55);
+    s.lineTo(-0.45, -0.55);
+    s.closePath();
+    return new THREE.ExtrudeGeometry(s, { depth: 0.3, bevelEnabled: false });
+  }, []);
+  // 넓은 면(입력)이 버스/레지스터 쪽(+z)을 향하도록 눕힘
+  return (
+    <mesh geometry={geometry} position={[POS.alu[0], 0.36, POS.alu[1]]} rotation={[Math.PI / 2, 0, 0]}>
+      <meshStandardMaterial color="#2c3a52" roughness={0.42} metalness={0.3} />
+    </mesh>
+  );
+}
 
 function Block({
   x,
@@ -213,7 +235,7 @@ function SimFx() {
         />
       </mesh>
       <mesh position={[POS.alu[0], 0.42, POS.alu[1]]} userData={{ noHighlight: true }}>
-        <boxGeometry args={[1.4, 0.04, 1.1]} />
+        <boxGeometry args={[0.85, 0.04, 0.95]} />
         <meshStandardMaterial
           ref={aluMat}
           color="#2a3142"
@@ -282,9 +304,9 @@ export function CpuDie() {
         PC
       </Label3D>
 
-      {/* ===== ALU ===== */}
+      {/* ===== ALU — 교과서 기호 모양 ===== */}
       <Selectable nodeId="alu">
-        <Block x={POS.alu[0]} z={POS.alu[1]} w={1.5} d={1.2} color="#2c3a52" />
+        <AluShape />
       </Selectable>
       <Label3D position={[POS.alu[0], 0.75, POS.alu[1]]} accent>
         ALU
@@ -297,6 +319,26 @@ export function CpuDie() {
       <Label3D position={[POS.reg[0], 0.75, POS.reg[1]]} accent={currentId !== 'cpu-regdemo'}>
         범용 레지스터 (R0–R7)
       </Label3D>
+
+      {/* 다이 가장자리 본드 패드 */}
+      {Array.from({ length: 14 }, (_, i) => {
+        const x = -2.86 + i * 0.44;
+        return [-2.18, 2.18].map((z) => (
+          <mesh key={`${i}-${z}`} position={[x, 0.07, z]} userData={{ noHighlight: true }}>
+            <boxGeometry args={[0.22, 0.03, 0.14]} />
+            <meshStandardMaterial color="#d4a843" metalness={0.85} roughness={0.3} />
+          </mesh>
+        ));
+      })}
+      {Array.from({ length: 8 }, (_, i) => {
+        const z = -1.62 + i * 0.46;
+        return [-2.96, 2.96].map((x) => (
+          <mesh key={`${i}-${x}`} position={[x, 0.07, z]} userData={{ noHighlight: true }}>
+            <boxGeometry args={[0.14, 0.03, 0.22]} />
+            <meshStandardMaterial color="#d4a843" metalness={0.85} roughness={0.3} />
+          </mesh>
+        ));
+      })}
 
       <SimFx />
     </group>
