@@ -10,12 +10,6 @@ const defs: NodeDef[] = [
     pose: { position: [5.1, 3.0, 6.8], target: [0, 0.55, 0] },
   },
   {
-    id: 'software',
-    parentId: null,
-    sceneKey: 'softwareProcess',
-    pose: { position: [-2.7, 5.25, 9.8], target: [-2.55, 0.36, 0] },
-  },
-  {
     id: 'motherboard',
     parentId: 'computer',
     sceneKey: 'motherboard',

@@ -19,11 +19,6 @@ export function Hud() {
           컴퓨터를 <b>클릭</b>해 내부로 들어가 보세요 · 드래그로 회전
         </div>
       )}
-      {currentId === 'software' && (
-        <div className="visit-hint">
-          process 블록과 하드웨어 칩을 <b>클릭</b>해 연결 관계를 확인하세요
-        </div>
-      )}
       {currentId === 'cpu' && (
         <div className="scenario-buttons">
           <span className="scenario-title">학습 시나리오</span>

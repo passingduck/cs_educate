@@ -3,7 +3,7 @@ import { useNavStore } from '../nav/useNavStore';
 import { NODE_CONTENT } from '../content/nodes';
 import { rootOf } from '../nav/tree';
 
-const ROOT_TABS = ['computer', 'software'] as const;
+const ROOT_TABS = ['computer'] as const;
 
 export function Breadcrumb() {
   const currentId = useNavStore((s) => s.currentId);

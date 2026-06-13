@@ -23,19 +23,6 @@ export const NODE_CONTENT: Record<NodeId, NodeContent> = {
     ],
   },
 
-  software: {
-    id: 'software',
-    title: '소프트웨어',
-    subtitle: 'AI Agent Code → Process → Hardware',
-    description:
-      'AI agent 개발로 코딩을 시작했다면, agent는 마법이 아니라 **실행 중인 프로그램**입니다. `messages`, tool 결과, JSON 응답, 함수 호출이 모두 컴퓨터 메모리 어딘가에 놓이고, CPU는 그 값을 한 줄씩 읽고 실행합니다.\n\n화면은 왼쪽부터 오른쪽으로 읽으면 됩니다. **agent.py** 같은 사람이 읽는 코드는 실행되면서 하나의 **프로세스(Process)**가 됩니다. 프로세스 안에는 **code / data / heap / stack**이 나뉘어 있고, 아래쪽에는 그것이 실제로 놓이는 [[SSD|ssd]], [[DRAM|dram]], [[CPU|cpu-regdemo]], [[레지스터|regfile]]가 있습니다.\n\n왜 나누나요? 성격이 다르기 때문입니다. **code**는 실행 명령이라 보통 읽기 전용이고, **data**는 모델 이름이나 API 주소 같은 처음부터 있는 값입니다. **heap**은 대화 기록, tool 결과, 생성된 객체처럼 실행 중 커지는 공간이고, **stack**은 `run_agent → call_model → run_tool`처럼 지금 호출 중인 함수의 임시 메모장입니다. 이 구분을 알면 agent가 느려지는 이유, 메모리가 터지는 이유, 캐시와 저장소가 왜 필요한지가 보이기 시작합니다.',
-    facts: [
-      '프로세스는 실행 중인 프로그램 1개입니다. 같은 agent 서버를 여러 개 띄우면 code는 같아도 heap과 stack은 요청마다 달라집니다.',
-      '대화 기록이 길어질수록 heap에 쌓이는 객체와 문자열이 늘어납니다. agent 앱에서 "메모리 관리"가 중요해지는 이유입니다.',
-      'CPU는 LLM 추론 자체를 직접 이해하지 않습니다. 프로그램 입장에서는 모델 API 호출도 결국 함수 호출, 네트워크 I/O, 문자열 처리, JSON 파싱의 조합입니다.',
-    ],
-  },
-
   motherboard: {
     id: 'motherboard',
     title: '메인보드',
