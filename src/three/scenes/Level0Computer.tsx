@@ -12,19 +12,17 @@ import { COLORS } from '../materials';
  * PBR 머티리얼, 발광 로고 링 포함. blender/gen_computer.py에서 생성.
  */
 export function Level0Computer() {
-  const spin = useRef<THREE.Group>(null);
   const led = useRef<THREE.MeshStandardMaterial>(null);
   const { scene: model } = useGLTF('/models/computer.glb');
 
-  useFrame((state, delta) => {
-    if (spin.current) spin.current.rotation.y += delta * 0.12;
+  useFrame((state) => {
     if (led.current) {
       led.current.emissiveIntensity = 1.6 + Math.sin(state.clock.elapsedTime * 2.2) * 0.7;
     }
   });
 
   return (
-    <group ref={spin}>
+    <group>
       <Selectable nodeId="motherboard">
         <primitive object={model} />
         {/* 전면 전원 LED (호흡 애니메이션은 three에서) */}

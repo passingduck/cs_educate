@@ -67,7 +67,7 @@ const defs: NodeDef[] = [
     id: 'mem-hierarchy',
     parentId: 'cpu',
     sceneKey: 'memKitchen',
-    pose: { position: [0.5, 4.5, 10.5], target: [0.8, 0.6, 0] },
+    pose: { position: [-1.0, 2.3, 7.7], target: [-0.6, 0.7, -0.3] },
   },
   {
     id: 'regfile',

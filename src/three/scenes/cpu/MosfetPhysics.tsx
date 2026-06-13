@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
 import * as THREE from 'three';
 import { useFrame } from '@react-three/fiber';
+import { RoundedBox } from '@react-three/drei';
 import { Label3D } from '../shared/Label3D';
 
 const N_COLOR = '#5aa2ff'; // n형 (전자가 다수)
@@ -59,24 +60,20 @@ function MosfetDevice({ position, type }: DeviceProps) {
 
   return (
     <group position={position}>
-      {/* 기판 */}
-      <mesh position={[0, 0, 0]} userData={{ noHighlight: true }}>
-        <boxGeometry args={[3.6, 1.3, 1.6]} />
-        <meshStandardMaterial color={bodyColor} roughness={0.55} transparent opacity={0.92} />
-      </mesh>
+      {/* 기판 (유리처럼 반투명) */}
+      <RoundedBox args={[3.6, 1.3, 1.6]} radius={0.06} smoothness={4} position={[0, 0, 0]} userData={{ noHighlight: true }}>
+        <meshPhysicalMaterial color={bodyColor} roughness={0.35} metalness={0.1} transparent opacity={0.9} clearcoat={0.6} clearcoatRoughness={0.2} />
+      </RoundedBox>
       <Label3D position={[0, -0.95, 0.5]} small>
         {isN ? 'p형 기판 (정공 다수)' : 'n형 웰 (전자 다수)'}
       </Label3D>
 
       {/* 소스 / 드레인 (고농도 도핑) */}
-      <mesh position={[-1.25, 0.42, 0]} userData={{ noHighlight: true }}>
-        <boxGeometry args={[1.0, 0.5, 1.4]} />
-        <meshStandardMaterial color={dopeColor} roughness={0.45} emissive={dopeColor} emissiveIntensity={0.18} />
-      </mesh>
-      <mesh position={[1.25, 0.42, 0]} userData={{ noHighlight: true }}>
-        <boxGeometry args={[1.0, 0.5, 1.4]} />
-        <meshStandardMaterial color={dopeColor} roughness={0.45} emissive={dopeColor} emissiveIntensity={0.18} />
-      </mesh>
+      {[-1.25, 1.25].map((x) => (
+        <RoundedBox key={x} args={[1.0, 0.52, 1.4]} radius={0.05} smoothness={4} position={[x, 0.42, 0]} userData={{ noHighlight: true }}>
+          <meshStandardMaterial color={dopeColor} roughness={0.38} metalness={0.2} emissive={dopeColor} emissiveIntensity={0.22} />
+        </RoundedBox>
+      ))}
       <Label3D position={[-1.25, 1.45, 0]} small>
         {`소스 (${isN ? 'n+' : 'p+'})`}
       </Label3D>
@@ -84,14 +81,17 @@ function MosfetDevice({ position, type }: DeviceProps) {
         {`드레인 (${isN ? 'n+' : 'p+'})`}
       </Label3D>
 
-      {/* 산화막 (절연) */}
+      {/* 산화막 (절연, 유리) */}
       <mesh position={[0, 0.71, 0]} userData={{ noHighlight: true }}>
         <boxGeometry args={[1.4, 0.08, 1.45]} />
-        <meshStandardMaterial color="#e8edf5" roughness={0.15} transparent opacity={0.5} />
+        <meshPhysicalMaterial color="#eaf2ff" roughness={0.08} transparent opacity={0.45} clearcoat={1} clearcoatRoughness={0.03} ior={1.46} />
       </mesh>
 
       {/* 게이트 전극 — 클릭으로 전압 토글 */}
-      <mesh
+      <RoundedBox
+        args={[1.4, 0.36, 1.45]}
+        radius={0.05}
+        smoothness={4}
         position={[0, 0.95, 0]}
         onClick={(e) => {
           e.stopPropagation();
@@ -107,15 +107,14 @@ function MosfetDevice({ position, type }: DeviceProps) {
           document.body.style.cursor = 'auto';
         }}
       >
-        <boxGeometry args={[1.4, 0.36, 1.45]} />
         <meshStandardMaterial
           color="#d4a843"
-          metalness={0.85}
-          roughness={0.3}
+          metalness={0.92}
+          roughness={0.25}
           emissive={gateOn ? '#ffd97a' : hover ? '#ffd97a' : '#000000'}
           emissiveIntensity={gateOn ? 0.9 : hover ? 0.3 : 0}
         />
-      </mesh>
+      </RoundedBox>
       <Label3D position={[0, 1.75, 0]} accent>
         {`게이트 ${isN ? (gateOn ? '+V ON' : '0V OFF') : gateOn ? '0V ON' : '+V OFF'} — 클릭`}
       </Label3D>

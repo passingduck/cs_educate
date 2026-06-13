@@ -19,13 +19,13 @@ interface Station {
 }
 
 const STATIONS: Station[] = [
-  { key: 'reg', node: 'pan', pos: [-5.2, 0, 0.2], scale: 1.15, title: '프라이팬 = 레지스터', sub: '조리 중인 재료', beats: '1박자', travel: 0.35, beatTarget: 1, color: '#4cc8ff' },
-  { key: 'sram', node: 'table', pos: [-2.4, 0, -0.4], scale: 1.1, title: '식탁 = SRAM 캐시', sub: '곧 쓸 재료', beats: '~4박자', travel: 1.1, beatTarget: 4, color: '#7ee787' },
-  { key: 'dram', node: 'fridge', pos: [0.9, 0, -0.6], scale: 1.1, title: '냉장고 = DRAM', sub: '이번 주 장본 것', beats: '~200박자', travel: 2.6, beatTarget: 200, color: '#ffb454' },
-  { key: 'ssd', node: 'mart', pos: [5.8, 0, -1.2], scale: 1.15, title: '마트 = SSD', sub: '세상 모든 재료', beats: '~10만 박자', travel: 5.0, beatTarget: 100000, color: '#ff7a59' },
+  { key: 'reg', node: 'pan', pos: [-3.7, 0, 0.6], scale: 1.05, title: '프라이팬 = 레지스터', sub: '조리 중인 재료', beats: '1박자', travel: 0.4, beatTarget: 1, color: '#4cc8ff' },
+  { key: 'sram', node: 'table', pos: [-1.4, 0, -0.2], scale: 1.0, title: '식탁 = SRAM 캐시', sub: '곧 쓸 재료', beats: '~4박자', travel: 1.1, beatTarget: 4, color: '#7ee787' },
+  { key: 'dram', node: 'fridge', pos: [0.9, 0, -0.5], scale: 1.0, title: '냉장고 = DRAM', sub: '이번 주 장본 것', beats: '~200박자', travel: 2.6, beatTarget: 200, color: '#ffb454' },
+  { key: 'ssd', node: 'mart', pos: [3.5, 0, -0.9], scale: 1.05, title: '마트 = SSD', sub: '세상 모든 재료', beats: '~10만 박자', travel: 5.0, beatTarget: 100000, color: '#ff7a59' },
 ];
 
-const PAN_POS = new THREE.Vector3(-5.2, 0.75, 0.2);
+const PAN_POS = new THREE.Vector3(STATIONS[0].pos[0], 0.7, STATIONS[0].pos[2]);
 
 /** 메모리 계층 = 요리사의 주방. 저장소 클릭 → 재료가 프라이팬까지 배달되는 시간 체험 */
 export function MemKitchen() {

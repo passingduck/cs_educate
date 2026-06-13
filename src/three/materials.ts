@@ -35,4 +35,18 @@ export const mat = {
       emissiveIntensity: intensity,
       toneMapped: false,
     }),
+  /** 환경을 반사/투과하는 유리 — 클리어코트 + 낮은 거칠기 */
+  glass: (color = '#cfe6ff', opacity = 0.22) =>
+    new THREE.MeshPhysicalMaterial({
+      color,
+      metalness: 0,
+      roughness: 0.06,
+      transparent: true,
+      opacity,
+      clearcoat: 1,
+      clearcoatRoughness: 0.04,
+      ior: 1.45,
+      envMapIntensity: 1.4,
+      side: THREE.DoubleSide,
+    }),
 };

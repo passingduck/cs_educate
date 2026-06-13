@@ -37,16 +37,25 @@ export function CameraRig() {
   }, [snapToken, camera]);
 
   useFrame((_, delta) => {
-    if (!settling.current || !controls.current) return;
-    const pose = NAV_TREE[useNavStore.getState().currentId].pose;
-    const dt = Math.min(delta, 0.05);
-    easing.damp3(camera.position, pose.position, 0.4, dt);
-    easing.damp3(controls.current.target, pose.target, 0.4, dt);
-    controls.current.update();
-    const dist =
-      camera.position.distanceTo(new THREE.Vector3(...pose.position)) +
-      controls.current.target.distanceTo(new THREE.Vector3(...pose.target));
-    if (dist < 0.02) settling.current = false;
+    const c = controls.current;
+    if (!c) return;
+    const id = useNavStore.getState().currentId;
+
+    if (settling.current) {
+      const pose = NAV_TREE[id].pose;
+      const dt = Math.min(delta, 0.05);
+      easing.damp3(camera.position, pose.position, 0.42, dt);
+      easing.damp3(c.target, pose.target, 0.42, dt);
+      const dist =
+        camera.position.distanceTo(new THREE.Vector3(...pose.position)) +
+        c.target.distanceTo(new THREE.Vector3(...pose.target));
+      if (dist < 0.02) settling.current = false;
+    }
+
+    // 히어로(컴퓨터)에서는 정착 후 카메라가 천천히 도는 쇼케이스 턴테이블
+    c.autoRotate = id === 'computer' && !settling.current && transition === 'idle';
+    c.autoRotateSpeed = 0.55;
+    c.update();
   });
 
   return (
@@ -59,7 +68,7 @@ export function CameraRig() {
       maxDistance={30}
       maxPolarAngle={Math.PI * 0.52}
       enableDamping
-      dampingFactor={0.08}
+      dampingFactor={0.075}
     />
   );
 }

@@ -1,12 +1,11 @@
 import { Fragment } from 'react';
 import { useNavStore } from '../nav/useNavStore';
-import { pathOf } from '../nav/tree';
 import { NODE_CONTENT } from '../content/nodes';
 
 export function Breadcrumb() {
   const currentId = useNavStore((s) => s.currentId);
   const navigateTo = useNavStore((s) => s.navigateTo);
-  const path = pathOf(currentId);
+  const path = useNavStore((s) => s.trail);
 
   return (
     <nav className="breadcrumb">

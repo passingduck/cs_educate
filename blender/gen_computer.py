@@ -15,20 +15,25 @@ bpy.ops.wm.read_factory_settings(use_empty=True)
 scene = bpy.context.scene
 
 
-def mat_principled(name, color, metallic=0.0, roughness=0.5, emission=None, emission_strength=0.0):
+def mat_principled(name, color, metallic=0.0, roughness=0.5, coat=0.0, emission=None, emission_strength=0.0):
     m = bpy.data.materials.new(name)
     m.use_nodes = True
     bsdf = m.node_tree.nodes["Principled BSDF"]
     bsdf.inputs["Base Color"].default_value = (*color, 1.0)
     bsdf.inputs["Metallic"].default_value = metallic
     bsdf.inputs["Roughness"].default_value = roughness
+    if coat and "Coat Weight" in bsdf.inputs:
+        bsdf.inputs["Coat Weight"].default_value = coat
+        if "Coat Roughness" in bsdf.inputs:
+            bsdf.inputs["Coat Roughness"].default_value = 0.1
     if emission:
         bsdf.inputs["Emission Color"].default_value = (*emission, 1.0)
         bsdf.inputs["Emission Strength"].default_value = emission_strength
     return m
 
 
-ALU = mat_principled("aluminum", (0.62, 0.66, 0.71), metallic=0.95, roughness=0.32)
+# 살짝 거칠게 하고 클리어코트를 올려 '아노다이즈드 알루미늄' 느낌 (환경 반사가 부드럽게 미끄러짐)
+ALU = mat_principled("aluminum", (0.58, 0.62, 0.68), metallic=0.92, roughness=0.28, coat=0.4)
 DARK = mat_principled("dark_plastic", (0.04, 0.045, 0.055), metallic=0.1, roughness=0.6)
 PORT = mat_principled("port_inner", (0.015, 0.018, 0.022), metallic=0.2, roughness=0.85)
 GLOW = mat_principled("logo_glow", (0.05, 0.5, 0.8), roughness=0.3,
