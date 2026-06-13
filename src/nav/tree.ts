@@ -10,6 +10,12 @@ const defs: NodeDef[] = [
     pose: { position: [5.1, 3.0, 6.8], target: [0, 0.55, 0] },
   },
   {
+    id: 'software',
+    parentId: null,
+    sceneKey: 'softwareProcess',
+    pose: { position: [-1.55, 5.3, 9.7], target: [-1.72, 0.55, 0] },
+  },
+  {
     id: 'motherboard',
     parentId: 'computer',
     sceneKey: 'motherboard',
@@ -148,6 +154,12 @@ function buildTree(): Record<NodeId, NavNode> {
 }
 
 export const NAV_TREE = buildTree();
+
+export function rootOf(id: NodeId): NodeId {
+  let cur = NAV_TREE[id];
+  while (cur.parentId) cur = NAV_TREE[cur.parentId];
+  return cur.id;
+}
 
 /** root → … → id 경로 (breadcrumb용) */
 export function pathOf(id: NodeId): NodeId[] {

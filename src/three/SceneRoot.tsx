@@ -3,6 +3,7 @@ import { useNavStore } from '../nav/useNavStore';
 import { NAV_TREE } from '../nav/tree';
 import type { SceneKey } from '../nav/types';
 import { Level0Computer } from './scenes/Level0Computer';
+import { SoftwareProcess } from './scenes/SoftwareProcess';
 import { Level1Motherboard } from './scenes/Level1Motherboard';
 import { DramModule } from './scenes/dram/DramModule';
 import { DramCellArray } from './scenes/dram/DramCellArray';
@@ -23,6 +24,7 @@ import { MosfetPhysics } from './scenes/cpu/MosfetPhysics';
 
 const SCENES: Record<SceneKey, () => React.JSX.Element> = {
   computer: Level0Computer,
+  softwareProcess: SoftwareProcess,
   motherboard: Level1Motherboard,
   dramModule: DramModule,
   dramArray: DramCellArray,
@@ -57,6 +59,7 @@ const FLAT_SCENES: SceneKey[] = [
 /** 입체 씬별 바닥 높이 — 접지 그림자(ContactShadows) 위치 */
 const FLOOR: Partial<Record<SceneKey, number>> = {
   computer: 0.0,
+  softwareProcess: -0.25,
   motherboard: -0.17,
   dramModule: 0.0,
   dramArray: -0.13,

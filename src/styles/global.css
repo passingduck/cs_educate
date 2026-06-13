@@ -60,12 +60,22 @@ body {
   opacity: 1;
 }
 
-/* ---------- Breadcrumb ---------- */
+/* ---------- Top navigation ---------- */
 
-.breadcrumb {
+.top-nav {
   position: absolute;
   top: 24px;
   left: 24px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: calc(100vw - 420px);
+  flex-wrap: wrap;
+  z-index: 60;
+}
+
+.root-tabs,
+.breadcrumb {
   display: flex;
   align-items: center;
   gap: 4px;
@@ -76,10 +86,14 @@ body {
   border: 1px solid var(--border);
   border-radius: 999px;
   box-shadow: var(--shadow);
-  max-width: calc(100vw - 420px);
   flex-wrap: wrap;
 }
 
+.root-tabs {
+  padding: 8px;
+}
+
+.root-tabs button,
 .breadcrumb button {
   background: none;
   border: none;
@@ -94,19 +108,28 @@ body {
   white-space: nowrap;
 }
 
+.root-tabs button {
+  padding: 7px 14px;
+  font-size: 14px;
+}
+
+.root-tabs button:hover,
 .breadcrumb button:hover {
   color: var(--accent);
   background: var(--accent-dim);
 }
 
+.root-tabs button.current,
 .breadcrumb button.current {
   color: var(--text-0);
   font-weight: 700;
   cursor: default;
+  background: rgba(255, 255, 255, 0.05);
 }
 
+.root-tabs button.current:hover,
 .breadcrumb button.current:hover {
-  background: none;
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .breadcrumb .sep {
@@ -133,6 +156,7 @@ body {
   box-shadow: var(--shadow);
   overflow: hidden;
   transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.3s;
+  z-index: 55;
 }
 
 .info-panel.collapsed {
@@ -159,6 +183,7 @@ body {
   align-items: center;
   justify-content: center;
   transition: border-color 0.15s;
+  z-index: 55;
 }
 
 .info-panel-toggle:hover {
@@ -224,6 +249,24 @@ body {
 .info-body p strong {
   color: var(--text-0);
   font-weight: 600;
+}
+
+.wiki-link {
+  display: inline;
+  border: none;
+  background: transparent;
+  color: var(--accent);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-color: rgba(76, 200, 255, 0.35);
+  text-underline-offset: 3px;
+}
+
+.wiki-link:hover {
+  color: var(--text-0);
+  text-decoration-color: var(--accent);
 }
 
 .info-facts {
@@ -377,6 +420,94 @@ body {
   border-color: var(--border-bright);
   background: var(--accent-dim);
   color: var(--accent);
+}
+
+/* ---------- Software process scene ---------- */
+
+.software-code-card {
+  width: 220px;
+  padding: 13px 15px;
+  border-radius: 8px;
+  background: #eef3f8;
+  color: #1a2430;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.24);
+}
+
+.software-code-card .code-title {
+  margin-bottom: 7px;
+  font-family: var(--font-sans);
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: #315b7b;
+}
+
+.software-code-card pre {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  line-height: 1.55;
+  white-space: pre-wrap;
+}
+
+.process-block-card {
+  width: 218px;
+  padding: 8px 10px 9px;
+  border-radius: 8px;
+  background: rgba(7, 10, 16, 0.76);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: var(--text-0);
+  box-shadow: var(--shadow);
+}
+
+.process-block-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 5px;
+}
+
+.process-block-head span {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.process-block-head em {
+  font-style: normal;
+  font-size: 9.5px;
+  color: var(--text-2);
+}
+
+.process-block-card p {
+  margin: 0 0 8px;
+  font-size: 9px;
+  line-height: 1.45;
+  color: var(--text-1);
+}
+
+.wiki-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.wiki-chip-3d {
+  padding: 4px 7px;
+  border-radius: 999px;
+  border: 1px solid rgba(76, 200, 255, 0.35);
+  background: rgba(76, 200, 255, 0.1);
+  color: var(--accent);
+  font-family: var(--font-sans);
+  font-size: 9px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.wiki-chip-3d:hover {
+  border-color: rgba(232, 237, 245, 0.7);
+  color: var(--text-0);
+  background: rgba(255, 255, 255, 0.1);
 }
 
 /* ---------- Sim panel ---------- */

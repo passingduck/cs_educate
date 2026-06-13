@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import type { NodeId } from './types';
-import { NAV_TREE, pathOf } from './tree';
+import { NAV_TREE, pathOf, rootOf } from './tree';
 
 export type Transition = 'idle' | 'out' | 'in';
 
@@ -21,6 +21,7 @@ const SETTLE_MS = 650;
 
 /** 다음 trail 계산: 이미 경로에 있으면 거기까지 자르고(줌아웃), 아니면 끝에 추가(드릴다운) */
 function nextTrail(trail: NodeId[], id: NodeId): NodeId[] {
+  if (NAV_TREE[id].parentId === null || rootOf(trail[0]) !== rootOf(id)) return pathOf(id);
   const idx = trail.indexOf(id);
   if (idx !== -1) return trail.slice(0, idx + 1);
   // 현재 끝의 자식이면 이어붙이고, 그 외(시나리오 점프 등)도 그냥 추가

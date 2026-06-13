@@ -1,5 +1,6 @@
 export type NodeId =
   | 'computer'
+  | 'software'
   | 'motherboard'
   | 'ssd'
   | 'dram'
@@ -23,6 +24,7 @@ export type NodeId =
 
 export type SceneKey =
   | 'computer'
+  | 'softwareProcess'
   | 'motherboard'
   | 'dramModule'
   | 'dramArray'
