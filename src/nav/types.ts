@@ -19,7 +19,8 @@ export type NodeId =
   | 'alu-mul'
   | 'alu-shift'
   | 'cmos'
-  | 'mosfet';
+  | 'mosfet'
+  | 'mosfet-switches';
 
 export type SceneKey =
   | 'computer'
@@ -39,7 +40,8 @@ export type SceneKey =
   | 'gateLatch'
   | 'gateFlipflop'
   | 'cmosGate'
-  | 'mosfetPhysics';
+  | 'mosfetPhysics'
+  | 'mosfetSwitches';
 
 export interface CameraPose {
   position: [number, number, number];

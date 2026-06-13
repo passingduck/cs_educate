@@ -20,6 +20,7 @@ import { RegFile } from './scenes/cpu/RegFile';
 import { MuxDetail } from './scenes/cpu/MuxDetail';
 import { CmosGate } from './scenes/cpu/CmosGate';
 import { MosfetPhysics } from './scenes/cpu/MosfetPhysics';
+import { MosfetSwitchComparison } from './scenes/cpu/MosfetSwitchComparison';
 
 const SCENES: Record<SceneKey, () => React.JSX.Element> = {
   computer: Level0Computer,
@@ -40,6 +41,7 @@ const SCENES: Record<SceneKey, () => React.JSX.Element> = {
   gateFlipflop: GateFlipflop,
   cmosGate: CmosGate,
   mosfetPhysics: MosfetPhysics,
+  mosfetSwitches: MosfetSwitchComparison,
 };
 
 /** 회로도(XY 평면, 정면) 씬 — 그리드/접지 그림자 없이 균일 조명 */

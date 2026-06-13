@@ -30,6 +30,14 @@ export function Hud() {
           </button>
         </div>
       )}
+      {currentId === 'mosfet' && (
+        <div className="scenario-buttons">
+          <span className="scenario-title">추가 설명</span>
+          <button onClick={() => useNavStore.getState().navigateTo('mosfet-switches')}>
+            스위치는 꼭 MOSFET이어야 할까?
+          </button>
+        </div>
+      )}
       <div className={`fade-layer${transition === 'out' ? ' visible' : ''}`} />
     </div>
   );
