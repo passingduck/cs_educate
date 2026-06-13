@@ -8,6 +8,8 @@ export type NodeId =
   | 'cpu'
   | 'cpu-boot'
   | 'cpu-regdemo'
+  | 'sram-latch'
+  | 'reg-flipflop'
   | 'alu'
   | 'alu-add'
   | 'alu-mul'
@@ -26,6 +28,8 @@ export type SceneKey =
   | 'gateAdder'
   | 'gateMul'
   | 'gateShift'
+  | 'gateLatch'
+  | 'gateFlipflop'
   | 'cmosGate'
   | 'mosfetPhysics';
 

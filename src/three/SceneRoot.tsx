@@ -12,6 +12,8 @@ import { AluUnits } from './scenes/cpu/AluUnits';
 import { GateAdder } from './scenes/cpu/GateAdder';
 import { GateMul } from './scenes/cpu/GateMul';
 import { GateShift } from './scenes/cpu/GateShift';
+import { GateLatch } from './scenes/cpu/GateLatch';
+import { GateFlipflop } from './scenes/cpu/GateFlipflop';
 import { CmosGate } from './scenes/cpu/CmosGate';
 import { MosfetPhysics } from './scenes/cpu/MosfetPhysics';
 
@@ -26,12 +28,21 @@ const SCENES: Record<SceneKey, () => React.JSX.Element> = {
   gateAdder: GateAdder,
   gateMul: GateMul,
   gateShift: GateShift,
+  gateLatch: GateLatch,
+  gateFlipflop: GateFlipflop,
   cmosGate: CmosGate,
   mosfetPhysics: MosfetPhysics,
 };
 
 /** 그리드 바닥이 어울리지 않는 회로도(XY 평면) 씬 */
-const FLAT_SCENES: SceneKey[] = ['gateAdder', 'gateMul', 'gateShift', 'cmosGate'];
+const FLAT_SCENES: SceneKey[] = [
+  'gateAdder',
+  'gateMul',
+  'gateShift',
+  'gateLatch',
+  'gateFlipflop',
+  'cmosGate',
+];
 
 export function SceneRoot() {
   const sceneKey = useNavStore((s) => NAV_TREE[s.currentId].sceneKey);

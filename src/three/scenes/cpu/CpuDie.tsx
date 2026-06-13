@@ -328,6 +328,34 @@ export function CpuDie() {
         범용 레지스터 (R0–R7)
       </Label3D>
 
+      {/* 1비트 확대 마커: SRAM → SR 래치 / 레지스터 → D 플립플롭 */}
+      <Selectable nodeId="sram-latch">
+        <mesh position={[POS.sram[0], 0.62, POS.sram[1] + 0.55]} rotation={[Math.PI / 2, 0, 0]}>
+          <torusGeometry args={[0.2, 0.03, 10, 28]} />
+          <meshStandardMaterial color="#7ee787" emissive="#7ee787" emissiveIntensity={1.4} toneMapped={false} />
+        </mesh>
+        <mesh position={[POS.sram[0], 0.62, POS.sram[1] + 0.55]} visible={false}>
+          <boxGeometry args={[0.55, 0.4, 0.55]} />
+          <meshBasicMaterial />
+        </mesh>
+      </Selectable>
+      <Label3D position={[POS.sram[0], 1.05, POS.sram[1] + 0.85]} small>
+        1비트 = 래치
+      </Label3D>
+      <Selectable nodeId="reg-flipflop">
+        <mesh position={[POS.reg[0] + 0.7, 0.62, POS.reg[1] + 0.42]} rotation={[Math.PI / 2, 0, 0]}>
+          <torusGeometry args={[0.2, 0.03, 10, 28]} />
+          <meshStandardMaterial color="#ffb454" emissive="#ffb454" emissiveIntensity={1.4} toneMapped={false} />
+        </mesh>
+        <mesh position={[POS.reg[0] + 0.7, 0.62, POS.reg[1] + 0.42]} visible={false}>
+          <boxGeometry args={[0.55, 0.4, 0.55]} />
+          <meshBasicMaterial />
+        </mesh>
+      </Selectable>
+      <Label3D position={[POS.reg[0] + 0.7, 1.05, POS.reg[1] + 0.75]} small>
+        1비트 = 플립플롭
+      </Label3D>
+
       {/* 다이 가장자리 본드 패드 */}
       {Array.from({ length: 14 }, (_, i) => {
         const x = -2.86 + i * 0.44;

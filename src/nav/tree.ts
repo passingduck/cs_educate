@@ -58,6 +58,18 @@ const defs: NodeDef[] = [
     pose: { position: [1.4, 4.8, 4.4], target: [0.9, 0, 0.1] },
   },
   {
+    id: 'sram-latch',
+    parentId: 'cpu-regdemo',
+    sceneKey: 'gateLatch',
+    pose: { position: [0, 0.4, 9.5], target: [0, 0, 0] },
+  },
+  {
+    id: 'reg-flipflop',
+    parentId: 'cpu-regdemo',
+    sceneKey: 'gateFlipflop',
+    pose: { position: [0, 0.5, 11.5], target: [0, -0.2, 0] },
+  },
+  {
     id: 'alu',
     parentId: 'cpu',
     sceneKey: 'aluUnits',
