@@ -36,6 +36,8 @@ def mat_principled(name, color, metallic=0.0, roughness=0.5, coat=0.0, emission=
 ALU = mat_principled("aluminum", (0.58, 0.62, 0.68), metallic=0.92, roughness=0.28, coat=0.4)
 DARK = mat_principled("dark_plastic", (0.04, 0.045, 0.055), metallic=0.1, roughness=0.6)
 PORT = mat_principled("port_inner", (0.015, 0.018, 0.022), metallic=0.2, roughness=0.85)
+TRIM = mat_principled("bead_blasted_trim", (0.72, 0.76, 0.82), metallic=0.88, roughness=0.2, coat=0.35)
+RUBBER = mat_principled("soft_black_rubber", (0.012, 0.014, 0.017), metallic=0.0, roughness=0.82)
 GLOW = mat_principled("logo_glow", (0.05, 0.5, 0.8), roughness=0.3,
                       emission=(0.3, 0.78, 1.0), emission_strength=1.8)
 
@@ -101,6 +103,8 @@ boolean_cut(body, c)
 # 포트 안쪽 어두운 내벽 (음각 안에 살짝 작게)
 for i, x in enumerate([-1.1, -0.6, -0.1, 0.4]):
     add_cube(f"usbin{i}", (0.33, 0.06, 0.15), (x, 1.93, 0.55), PORT)
+    add_cube(f"usb_trim{i}", (0.42, 0.018, 0.028), (x, 1.914, 0.66), TRIM)
+    add_cube(f"usb_trim_b{i}", (0.42, 0.018, 0.028), (x, 1.914, 0.44), TRIM)
 add_cyl("pwrin", 0.095, 0.06, (1.2, 1.93, 0.55), PORT, rot=(math.pi / 2, 0, 0), verts=24)
 add_cube("hdmiin", (0.49, 0.06, 0.11), (-1.1, 1.93, 0.88), PORT)
 add_cube("lanin", (0.31, 0.06, 0.25), (-0.45, 1.93, 0.86), PORT)
@@ -111,10 +115,22 @@ for i in range(9):
     c = add_cube(f"vent{i}", (0.3, 0.07, 0.6), (1.95, -y, 0.62), None)
     boolean_cut(body, c)
 
+# 반대편에도 얕은 흡기 슬릿을 만들어 한쪽만 비어 보이는 느낌을 없앤다.
+for i in range(7):
+    y = -0.75 + i * 0.25
+    c = add_cube(f"vent_l{i}", (0.3, 0.06, 0.46), (-1.95, -y, 0.58), None)
+    boolean_cut(body, c)
+
+# 전면 라이트 파이프와 얇은 금속 seam. three +z 면은 blender -y 면이다.
+add_cube("front_light_pipe", (2.55, 0.018, 0.035), (0, -2.012, 0.72), GLOW)
+add_cube("front_bezel_seam", (3.35, 0.012, 0.018), (0, -2.018, 0.93), TRIM)
+
 # ---------- 바닥 받침 ----------
 add_cyl("base", 1.55, 0.12, (0, 0, 0.06), DARK)
-# 바닥 고무 링
-add_cyl("foot", 1.3, 0.04, (0, 0, 0.012), DARK)
+# 바닥 고무 링 + 네 모서리 피트
+add_cyl("foot", 1.3, 0.04, (0, 0, 0.012), RUBBER)
+for i, (x, y) in enumerate([(-1.45, -1.45), (1.45, -1.45), (-1.45, 1.45), (1.45, 1.45)]):
+    add_cyl(f"corner_foot{i}", 0.18, 0.055, (x, y, 0.02), RUBBER, verts=28)
 
 # ---------- 상판 로고 링 (발광 토러스) ----------
 # 상판 미세 음각 디스크 (로고 링 자리) — 링은 홈 안에 밀착
@@ -126,6 +142,10 @@ bpy.ops.mesh.primitive_torus_add(major_radius=0.47, minor_radius=0.028,
 ring = bpy.context.active_object
 ring.name = "logo_ring"
 ring.data.materials.append(GLOW)
+
+# 상판의 미세한 조립 나사/정렬 핀. 작게 넣어 스케일감을 준다.
+for i, (x, y) in enumerate([(-1.55, -1.55), (1.55, -1.55), (-1.55, 1.55), (1.55, 1.55)]):
+    add_cyl(f"top_pin{i}", 0.035, 0.012, (x, y, 1.202), TRIM, verts=20)
 
 # ---------- 스무스 셰이딩 ----------
 for o in bpy.data.objects:

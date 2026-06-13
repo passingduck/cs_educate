@@ -7,13 +7,13 @@ const defs: NodeDef[] = [
     id: 'computer',
     parentId: null,
     sceneKey: 'computer',
-    pose: { position: [5.5, 3.5, 7.5], target: [0, 0.6, 0] },
+    pose: { position: [5.1, 3.0, 6.8], target: [0, 0.55, 0] },
   },
   {
     id: 'motherboard',
     parentId: 'computer',
     sceneKey: 'motherboard',
-    pose: { position: [0, 7.5, 6.5], target: [0, 0, 0] },
+    pose: { position: [0.4, 6.5, 6.0], target: [0.15, 0, 0] },
   },
   {
     id: 'ssd',
@@ -25,7 +25,7 @@ const defs: NodeDef[] = [
     id: 'dram',
     parentId: 'motherboard',
     sceneKey: 'dramModule',
-    pose: { position: [0, 1.6, 7.0], target: [0, 1.3, 0] },
+    pose: { position: [0.2, 1.9, 7.6], target: [0, 1.2, 0] },
   },
   {
     id: 'dram-array',

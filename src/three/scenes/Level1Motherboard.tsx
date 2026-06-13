@@ -22,6 +22,21 @@ function Trace({ from, to }: { from: [number, number]; to: [number, number] }) {
   );
 }
 
+function MountHole({ x, z }: { x: number; z: number }) {
+  return (
+    <group position={[x, 0.02, z]}>
+      <mesh rotation={[Math.PI / 2, 0, 0]} userData={{ noHighlight: true }}>
+        <torusGeometry args={[0.12, 0.014, 8, 28]} />
+        <meshStandardMaterial color="#c3cad4" metalness={0.9} roughness={0.22} />
+      </mesh>
+      <mesh position={[0, 0.03, 0]} userData={{ noHighlight: true }}>
+        <cylinderGeometry args={[0.055, 0.055, 0.025, 18]} />
+        <meshStandardMaterial color="#0a1218" roughness={0.8} />
+      </mesh>
+    </group>
+  );
+}
+
 /** 케이스 내부: 메인보드 + CPU/DRAM/SSD (CPU 패키지·DIMM은 Blender GLB) */
 export function Level1Motherboard() {
   const cpuGltf = useGLTF('/models/cpu_package.glb');
@@ -34,10 +49,7 @@ export function Level1Motherboard() {
         <meshStandardMaterial color={COLORS.pcb} roughness={0.55} metalness={0.15} />
       </mesh>
       {([[-3.3, -2.4], [3.3, -2.4], [-3.3, 2.4], [3.3, 2.4]] as const).map(([x, z], i) => (
-        <mesh key={i} position={[x, 0.01, z]} userData={{ noHighlight: true }}>
-          <cylinderGeometry args={[0.09, 0.09, 0.18, 16]} />
-          <meshStandardMaterial color="#8a9099" metalness={0.8} roughness={0.4} />
-        </mesh>
+        <MountHole key={i} x={x} z={z} />
       ))}
 
       {/* 버스 트레이스 다발: CPU↔DRAM, CPU↔칩셋, 칩셋↔SSD */}
@@ -49,6 +61,18 @@ export function Level1Motherboard() {
       ))}
       {[-0.1, 0.1].map((o, i) => (
         <Trace key={`c${i}`} from={[0.55 + o, 1.55]} to={[-1.5 + o, 1.75]} />
+      ))}
+      {Array.from({ length: 18 }, (_, i) => (
+        <mesh key={`via-a${i}`} position={[-0.05 + i * 0.14, 0.028, 0.52]} userData={{ noHighlight: true }}>
+          <cylinderGeometry args={[0.023, 0.023, 0.015, 10]} />
+          <meshStandardMaterial color={COLORS.gold} metalness={0.9} roughness={0.24} />
+        </mesh>
+      ))}
+      {Array.from({ length: 14 }, (_, i) => (
+        <mesh key={`via-b${i}`} position={[1.25, 0.028, -1.72 + i * 0.12]} userData={{ noHighlight: true }}>
+          <cylinderGeometry args={[0.02, 0.02, 0.015, 10]} />
+          <meshStandardMaterial color={COLORS.copper} metalness={0.88} roughness={0.3} />
+        </mesh>
       ))}
 
       {/* ===== CPU: 소켓 + 패키지 + IHS ===== */}
@@ -68,7 +92,7 @@ export function Level1Motherboard() {
           <Clone object={cpuGltf.nodes.cpu_package as THREE.Object3D} position={[0, 0.04, 0]} />
         </Selectable>
       </group>
-      <Label3D position={[-0.8, 0.95, -0.8]} accent>
+      <Label3D position={[-0.8, 1.08, -0.8]} accent>
         CPU
       </Label3D>
 
@@ -80,7 +104,7 @@ export function Level1Motherboard() {
             <meshStandardMaterial color="#3c434e" metalness={0.75} roughness={0.35} />
           </mesh>
         ))}
-        <Label3D position={[0, 0.85, 0]} small>
+        <Label3D position={[0, 0.98, 0.15]} small>
           전원부 (VRM)
         </Label3D>
       </group>
@@ -105,7 +129,7 @@ export function Level1Motherboard() {
           </group>
         ))}
       </Selectable>
-      <Label3D position={[2.55, 1.75, -0.2]} accent>
+      <Label3D position={[2.55, 1.95, -0.35]} accent>
         DRAM
       </Label3D>
 
@@ -138,7 +162,7 @@ export function Level1Motherboard() {
           <meshStandardMaterial color="#8a9099" metalness={0.85} roughness={0.3} />
         </mesh>
       </Selectable>
-      <Label3D position={[-2.2, 0.7, 1.75]} accent>
+      <Label3D position={[-2.2, 0.82, 1.45]} accent>
         SSD
       </Label3D>
 
@@ -154,7 +178,7 @@ export function Level1Motherboard() {
             <meshStandardMaterial color="#39404b" metalness={0.7} roughness={0.4} />
           </mesh>
         ))}
-        <Label3D position={[0, 0.55, 0]} small>
+        <Label3D position={[0, 0.68, 0]} small>
           칩셋
         </Label3D>
       </group>
