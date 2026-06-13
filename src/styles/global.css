@@ -333,6 +333,52 @@ body {
   }
 }
 
+/* ---------- 학습 시나리오 버튼 ---------- */
+
+.scenario-buttons {
+  position: absolute;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  background: var(--surface);
+  backdrop-filter: var(--blur);
+  -webkit-backdrop-filter: var(--blur);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  box-shadow: var(--shadow);
+}
+
+.scenario-buttons .scenario-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--text-2);
+  padding-left: 6px;
+}
+
+.scenario-buttons button {
+  padding: 9px 18px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text-0);
+  font-family: var(--font-sans);
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.scenario-buttons button:hover {
+  border-color: var(--border-bright);
+  background: var(--accent-dim);
+  color: var(--accent);
+}
+
 /* ---------- Sim panel ---------- */
 
 .sim-panel {

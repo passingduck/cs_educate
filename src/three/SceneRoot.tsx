@@ -14,6 +14,10 @@ import { GateMul } from './scenes/cpu/GateMul';
 import { GateShift } from './scenes/cpu/GateShift';
 import { GateLatch } from './scenes/cpu/GateLatch';
 import { GateFlipflop } from './scenes/cpu/GateFlipflop';
+import { CompilerStory } from './scenes/cpu/CompilerStory';
+import { MemKitchen } from './scenes/cpu/MemKitchen';
+import { RegFile } from './scenes/cpu/RegFile';
+import { MuxDetail } from './scenes/cpu/MuxDetail';
 import { CmosGate } from './scenes/cpu/CmosGate';
 import { MosfetPhysics } from './scenes/cpu/MosfetPhysics';
 
@@ -24,6 +28,10 @@ const SCENES: Record<SceneKey, () => React.JSX.Element> = {
   dramArray: DramCellArray,
   dramCell: DramCell,
   cpuDie: CpuDie,
+  compilerStory: CompilerStory,
+  memKitchen: MemKitchen,
+  regFile: RegFile,
+  muxDetail: MuxDetail,
   aluUnits: AluUnits,
   gateAdder: GateAdder,
   gateMul: GateMul,
@@ -36,6 +44,8 @@ const SCENES: Record<SceneKey, () => React.JSX.Element> = {
 
 /** 그리드 바닥이 어울리지 않는 회로도(XY 평면) 씬 */
 const FLAT_SCENES: SceneKey[] = [
+  'regFile',
+  'muxDetail',
   'gateAdder',
   'gateMul',
   'gateShift',

@@ -58,6 +58,30 @@ const defs: NodeDef[] = [
     pose: { position: [1.4, 4.8, 4.4], target: [0.9, 0, 0.1] },
   },
   {
+    id: 'compiler',
+    parentId: 'cpu',
+    sceneKey: 'compilerStory',
+    pose: { position: [0.5, 4.0, 11.0], target: [0.5, 1.0, 0] },
+  },
+  {
+    id: 'mem-hierarchy',
+    parentId: 'cpu',
+    sceneKey: 'memKitchen',
+    pose: { position: [0.5, 4.5, 10.5], target: [0.8, 0.6, 0] },
+  },
+  {
+    id: 'regfile',
+    parentId: 'cpu',
+    sceneKey: 'regFile',
+    pose: { position: [0, 0.3, 10.5], target: [0, 0, 0] },
+  },
+  {
+    id: 'mux',
+    parentId: 'regfile',
+    sceneKey: 'muxDetail',
+    pose: { position: [0, 0.3, 9.0], target: [0, 0, 0] },
+  },
+  {
     id: 'sram-latch',
     parentId: 'cpu-regdemo',
     sceneKey: 'gateLatch',
@@ -65,7 +89,7 @@ const defs: NodeDef[] = [
   },
   {
     id: 'reg-flipflop',
-    parentId: 'cpu-regdemo',
+    parentId: 'regfile',
     sceneKey: 'gateFlipflop',
     pose: { position: [0, 0.5, 11.5], target: [0, -0.2, 0] },
   },

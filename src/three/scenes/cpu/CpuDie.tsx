@@ -341,15 +341,15 @@ export function CpuDie() {
         ALU
       </Label3D>
 
-      {/* ===== 범용 레지스터 ===== */}
-      <Selectable nodeId="cpu-regdemo">
+      {/* ===== 범용 레지스터 → 레지스터 파일(MUX/DEMUX) ===== */}
+      <Selectable nodeId="regfile">
         <Block x={POS.reg[0]} z={POS.reg[1]} w={2.0} d={1.2} color="#3d3526" />
       </Selectable>
-      <Label3D position={[POS.reg[0], 0.75, POS.reg[1]]} accent={currentId !== 'cpu-regdemo'}>
+      <Label3D position={[POS.reg[0], 0.75, POS.reg[1]]} accent>
         범용 레지스터 (R0–R7)
       </Label3D>
 
-      {/* 1비트 확대 마커: SRAM → SR 래치 / 레지스터 → D 플립플롭 */}
+      {/* 1비트 확대 마커: SRAM → SR 래치 */}
       <Selectable nodeId="sram-latch">
         <mesh position={[POS.sram[0], 0.62, POS.sram[1] + 0.55]} rotation={[Math.PI / 2, 0, 0]}>
           <torusGeometry args={[0.2, 0.03, 10, 28]} />
@@ -362,19 +362,6 @@ export function CpuDie() {
       </Selectable>
       <Label3D position={[POS.sram[0], 1.05, POS.sram[1] + 0.85]} small>
         1비트 = 래치
-      </Label3D>
-      <Selectable nodeId="reg-flipflop">
-        <mesh position={[POS.reg[0] + 0.7, 0.62, POS.reg[1] + 0.42]} rotation={[Math.PI / 2, 0, 0]}>
-          <torusGeometry args={[0.2, 0.03, 10, 28]} />
-          <meshStandardMaterial color="#ffb454" emissive="#ffb454" emissiveIntensity={1.4} toneMapped={false} />
-        </mesh>
-        <mesh position={[POS.reg[0] + 0.7, 0.62, POS.reg[1] + 0.42]} visible={false}>
-          <boxGeometry args={[0.55, 0.4, 0.55]} />
-          <meshBasicMaterial />
-        </mesh>
-      </Selectable>
-      <Label3D position={[POS.reg[0] + 0.7, 1.05, POS.reg[1] + 0.75]} small>
-        1비트 = 플립플롭
       </Label3D>
 
       {/* 다이 가장자리 본드 패드 */}

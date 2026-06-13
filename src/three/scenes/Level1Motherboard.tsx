@@ -1,3 +1,5 @@
+import { useGLTF, Clone } from '@react-three/drei';
+import type * as THREE from 'three';
 import { Selectable } from '../Selectable';
 import { Label3D } from './shared/Label3D';
 import { COLORS } from '../materials';
@@ -20,8 +22,10 @@ function Trace({ from, to }: { from: [number, number]; to: [number, number] }) {
   );
 }
 
-/** 케이스 내부: 메인보드 + CPU/DRAM/SSD */
+/** 케이스 내부: 메인보드 + CPU/DRAM/SSD (CPU 패키지·DIMM은 Blender GLB) */
 export function Level1Motherboard() {
+  const cpuGltf = useGLTF('/models/cpu_package.glb');
+  const dimmGltf = useGLTF('/models/dimm.glb');
   return (
     <group>
       {/* PCB 기판 + 마운트 홀 */}
@@ -60,33 +64,8 @@ export function Level1Motherboard() {
           <meshStandardMaterial color="#8a9099" metalness={0.8} roughness={0.35} />
         </mesh>
         <Selectable nodeId="cpu">
-          {/* 기판 (녹색 서브스트레이트) */}
-          <mesh position={[0, 0.13, 0]}>
-            <boxGeometry args={[1.5, 0.08, 1.5]} />
-            <meshStandardMaterial color="#1d4d3c" roughness={0.5} />
-          </mesh>
-          {/* 기판 가장자리 SMD 부품들 */}
-          {([[-0.55, 0.6], [-0.3, 0.6], [0.3, 0.6], [0.55, 0.6], [-0.6, -0.58], [0.6, -0.58]] as const).map(
-            ([x, z], i) => (
-              <mesh key={i} position={[x, 0.18, z]}>
-                <boxGeometry args={[0.12, 0.04, 0.07]} />
-                <meshStandardMaterial color="#c8a435" metalness={0.6} roughness={0.4} />
-              </mesh>
-            ),
-          )}
-          {/* IHS — 클래식한 십자 날개 형태 */}
-          <mesh position={[0, 0.24, 0]}>
-            <boxGeometry args={[1.18, 0.13, 0.82]} />
-            <meshStandardMaterial color={COLORS.silver} metalness={0.9} roughness={0.28} />
-          </mesh>
-          <mesh position={[0, 0.24, 0]}>
-            <boxGeometry args={[0.82, 0.13, 1.18]} />
-            <meshStandardMaterial color={COLORS.silver} metalness={0.9} roughness={0.28} />
-          </mesh>
-          <mesh position={[0, 0.315, 0]}>
-            <boxGeometry args={[0.8, 0.025, 0.8]} />
-            <meshStandardMaterial color="#cdd5de" metalness={0.92} roughness={0.2} />
-          </mesh>
+          {/* Blender 제작 CPU 패키지 (기판+골드 패드+십자 IHS) */}
+          <Clone object={cpuGltf.nodes.cpu_package as THREE.Object3D} position={[0, 0.04, 0]} />
         </Selectable>
       </group>
       <Label3D position={[-0.8, 0.95, -0.8]} accent>
@@ -121,21 +100,8 @@ export function Level1Motherboard() {
                 <meshStandardMaterial color="#1c2027" roughness={0.7} />
               </mesh>
             ))}
-            {/* 모듈 PCB */}
-            <mesh position={[0, 0.72, 0]}>
-              <boxGeometry args={[0.08, 1.3, 2.6]} />
-              <meshStandardMaterial color="#0d2b3b" roughness={0.55} />
-            </mesh>
-            {/* 메모리 칩 8개 (4+4, 중앙 노치 기준 대칭) */}
-            {Array.from({ length: 8 }, (_, j) => {
-              const z = j < 4 ? -1.12 + j * 0.3 : 0.22 + (j - 4) * 0.3;
-              return (
-                <mesh key={j} position={[0.055, 0.74, z]}>
-                  <boxGeometry args={[0.035, 0.62, 0.24]} />
-                  <meshStandardMaterial color={COLORS.chip} roughness={0.4} metalness={0.3} />
-                </mesh>
-              );
-            })}
+            {/* Blender 제작 DIMM (PCB+칩 8개+골드 핑거) */}
+            <Clone object={dimmGltf.nodes.dimm as THREE.Object3D} position={[0, 0.1, 0]} />
           </group>
         ))}
       </Selectable>
@@ -244,3 +210,6 @@ export function Level1Motherboard() {
     </group>
   );
 }
+
+useGLTF.preload('/models/cpu_package.glb');
+useGLTF.preload('/models/dimm.glb');
