@@ -23,16 +23,16 @@ const assertEq = (label: string, actual: unknown, expected: unknown) => {
 };
 
 const add = run('add');
-assertEq('ADD 7+5 → mem[0x08]', add.mem[0x08], 12);
+assertEq('ADD 사과700+바나나500 → mem[0x08]', add.mem[0x08], 1200);
 
 const mul = run('mul');
-assertEq('MUL 6×7 → mem[0x08]', mul.mem[0x08], 42);
+assertEq('MUL 핫도그 1500×4 → mem[0x08]', mul.mem[0x08], 6000);
 
 const pow = run('pow');
-assertEq('POW 3^4 → mem[0x08]', pow.mem[0x08], 81);
+assertEq('POW 세균 2^5 → mem[0x08]', pow.mem[0x08], 32);
 
 const boot = run('boot');
 assertEq('BOOT SP', boot.sp, 0x20001000);
-assertEq('BOOT bss[0x40] (main이 42 저장)', boot.mem[0x40], 42);
-assertEq('BOOT bss[0x44] 클리어', boot.mem[0x44], 0);
-assertEq('BOOT bss[0x4C] 클리어', boot.mem[0x4c], 0);
+assertEq('BOOT 메모리 청소 [0x40]', boot.mem[0x40], 0);
+assertEq('BOOT 메모리 청소 [0x44]', boot.mem[0x44], 0);
+assertEq('BOOT 첫 데이터 [0x48]', boot.mem[0x48], 42);

@@ -5,6 +5,7 @@ import { Label3D } from '../shared/Label3D';
 import { SignalPulse, type PulseHandle } from '../shared/SignalPulse';
 import { COLORS } from '../../materials';
 import { useSimStore } from '../../../sim/useSimStore';
+import type { SimEvent } from '../../../sim/isa';
 import { useNavStore } from '../../../nav/useNavStore';
 
 const Y = 0.34; // 펄스가 달리는 높이
@@ -82,6 +83,7 @@ function SimFx() {
   const sramTiles = useRef<(THREE.MeshStandardMaterial | null)[]>([]);
   const pcMat = useRef<THREE.MeshStandardMaterial>(null);
   const aluMat = useRef<THREE.MeshStandardMaterial>(null);
+  const cuMat = useRef<THREE.MeshStandardMaterial>(null);
 
   // 클럭이 느릴수록 플래시도 천천히 사그라들도록 지속시간을 속도에 비례
   const flash = (mat: THREE.MeshStandardMaterial | null, color: string, intensity = 2.2, holdMs = 280) => {
@@ -110,21 +112,31 @@ function SimFx() {
           }
           const ev = state.lastEvent;
           const speed = useSimStore.getState().speedHz;
-          // 한 클럭 주기의 ~70%를 펄스 이동에 사용 — 0.25Hz면 2.8초 동안 천천히 이동
-          const dur = Math.min(3.0, 0.7 / speed);
-          const holdMs = Math.min(1600, 350 / speed);
+          // 폰 노이만 사이클: 클럭 한 주기를 인출/해석/실행 3박자로 분할 (UI PhaseCard와 동기)
+          const sub = Math.min(1 / speed, 3.6) / 3; // 한 박자(초)
+          const dur = sub * 0.85; // 박자 내 펄스 이동 시간
+          const holdMs = Math.min(1600, sub * 800);
 
-          // 모든 스텝: 명령어 페치 ROM → IR (XIP)
+          // ① 인출: 명령어 페치 ROM → IR (XIP) + PC 갱신 표시
           fetchPulse.current?.fire(path(POS.rom, POS.ir), '#ffb454', dur);
-
-          // PC 표시: ROM 스트라이프 + PC 레지스터 플래시
           const stripeCount = romStripes.current.length;
           romStripes.current.forEach((m, i) => {
             if (m) m.emissiveIntensity = i === state.pc % stripeCount ? 1.8 : 0.06;
           });
           flash(pcMat.current, '#ffb454', 1.8, holdMs);
 
-          switch (ev.kind) {
+          // ② 해석: 제어 장치 플래시
+          window.setTimeout(() => flash(cuMat.current, '#c792ea', 1.6, holdMs), sub * 1000);
+
+          // ③ 실행: 명령어 종류별 동작 (한 박자 뒤에)
+          window.setTimeout(() => runExecutePhase(ev, dur, holdMs), sub * 2000);
+        },
+      ),
+    [],
+  );
+
+  const runExecutePhase = (ev: SimEvent, dur: number, holdMs: number) => {
+    switch (ev.kind) {
             case 'ldr':
               dataPulse.current?.fire(path(POS.sram, POS.reg), '#7ee787', dur);
               flash(sramTiles.current[(ev.addr / 4) % 16], '#7ee787', 2.2, holdMs);
@@ -163,11 +175,8 @@ function SimFx() {
             case 'vec-pc':
               dataPulse.current?.fire(path(POS.rom, POS.cu), '#4cc8ff', dur);
               break;
-          }
-        },
-      ),
-    [],
-  );
+    }
+  };
 
   return (
     <group>
@@ -230,6 +239,18 @@ function SimFx() {
           />
         </mesh>
       ))}
+
+      {/* CU 해석 단계 플래시 캡 */}
+      <mesh position={[POS.cu[0], 0.42, POS.cu[1]]} userData={{ noHighlight: true }}>
+        <boxGeometry args={[0.8, 0.04, 0.7]} />
+        <meshStandardMaterial
+          ref={cuMat}
+          color="#3a3148"
+          emissive="#c792ea"
+          emissiveIntensity={0.06}
+          toneMapped={false}
+        />
+      </mesh>
 
       {/* PC / ALU 본체 플래시 대상 (블록 위 얇은 캡) */}
       <mesh position={[POS.pc[0], 0.42, POS.pc[1]]} userData={{ noHighlight: true }}>
