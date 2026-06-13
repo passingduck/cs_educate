@@ -101,7 +101,7 @@ function HumanSwitch({ input }: { input: boolean }) {
   });
 
   return (
-    <group ref={group} position={[-4.0, 0.15, 0]}>
+    <group ref={group} position={[-4.35, 0.15, 0]}>
       <Label3D position={[0, 2.35, 0]} accent>
         사람 스위치
       </Label3D>
@@ -109,25 +109,25 @@ function HumanSwitch({ input }: { input: boolean }) {
         느림 · 피곤하면 실수
       </Label3D>
 
-      <mesh position={[0, 0.2, 0]} userData={{ noHighlight: true }}>
-        <capsuleGeometry args={[0.28, 0.82, 8, 16]} />
+      <mesh position={[0, 0.16, 0]} userData={{ noHighlight: true }}>
+        <capsuleGeometry args={[0.3, 0.96, 8, 16]} />
         <meshStandardMaterial color="#6f88a8" roughness={0.45} />
       </mesh>
-      <mesh position={[0, 0.92, 0]} userData={{ noHighlight: true }}>
+      <mesh position={[0, 0.98, 0]} userData={{ noHighlight: true }}>
         <sphereGeometry args={[0.24, 18, 18]} />
         <meshStandardMaterial color="#d8b08a" roughness={0.42} />
       </mesh>
       {[-0.42, 0.42].map((x) => (
-        <mesh key={x} position={[x, -0.52, 0]} rotation={[0, 0, x > 0 ? -0.2 : 0.2]} userData={{ noHighlight: true }}>
+        <mesh key={x} position={[x, -0.74, 0]} rotation={[0, 0, x > 0 ? -0.2 : 0.2]} userData={{ noHighlight: true }}>
           <boxGeometry args={[0.13, 0.72, 0.13]} />
           <meshStandardMaterial color="#2d3644" roughness={0.5} />
         </mesh>
       ))}
-      <mesh position={[-0.42, 0.55, 0]} rotation={[0, 0, reported ? 0.85 : -0.35]} userData={{ noHighlight: true }}>
+      <mesh position={[-0.42, 0.6, 0]} rotation={[0, 0, reported ? 0.85 : -0.35]} userData={{ noHighlight: true }}>
         <boxGeometry args={[0.1, 0.9, 0.1]} />
         <meshStandardMaterial color="#b8c3d1" roughness={0.35} />
       </mesh>
-      <mesh position={[-0.75, reported ? 1.0 : 0.28, 0]} rotation={[0, 0, reported ? 0.85 : -0.35]} userData={{ noHighlight: true }}>
+      <mesh position={[-0.75, reported ? 1.05 : 0.33, 0]} rotation={[0, 0, reported ? 0.85 : -0.35]} userData={{ noHighlight: true }}>
         <boxGeometry args={[0.52, 0.34, 0.04]} />
         <meshStandardMaterial
           color={reported ? BLUE : RED}
@@ -136,8 +136,8 @@ function HumanSwitch({ input }: { input: boolean }) {
           roughness={0.42}
         />
       </mesh>
-      <SignalDots on={reported} speed={0.45} y={-0.98} />
-      <mesh position={[0, -0.98, 0]} userData={{ noHighlight: true }}>
+      <SignalDots on={reported} speed={0.45} y={-1.1} />
+      <mesh position={[0, -1.1, 0]} userData={{ noHighlight: true }}>
         <boxGeometry args={[2.3, 0.08, 0.08]} />
         <meshStandardMaterial color={reported ? ON : OFF} emissive={reported ? ON : '#000000'} emissiveIntensity={reported ? 0.45 : 0} />
       </mesh>
@@ -152,15 +152,22 @@ function VacuumTubeSwitch({ input }: { input: boolean }) {
   const glow = useRef<THREE.MeshStandardMaterial>(null);
   const plate = useRef<THREE.Mesh>(null);
   const warm = useRef(0);
+  const conductingRef = useRef(false);
+  const [conducting, setConducting] = useState(false);
 
   useFrame((state, delta) => {
     warm.current = THREE.MathUtils.clamp(warm.current + (input ? delta * 1.2 : -delta * 0.75), 0, 1);
     if (glow.current) glow.current.emissiveIntensity = 0.25 + warm.current * 1.6 + Math.sin(state.clock.elapsedTime * 9) * 0.08;
     if (plate.current) plate.current.rotation.y += delta * 0.35;
+    const nextConducting = warm.current > 0.65;
+    if (conductingRef.current !== nextConducting) {
+      conductingRef.current = nextConducting;
+      setConducting(nextConducting);
+    }
   });
 
   return (
-    <group position={[-1.7, 0.15, 0]}>
+    <group position={[-2.18, 0.15, 0]}>
       <Label3D position={[0, 2.35, 0]} accent>
         진공관 스위치
       </Label3D>
@@ -190,10 +197,10 @@ function VacuumTubeSwitch({ input }: { input: boolean }) {
           toneMapped={false}
         />
       </mesh>
-      <SignalDots on={warm.current > 0.65} speed={0.8} y={0.36} />
+      <SignalDots on={conducting} speed={0.8} y={0.36} />
       <mesh position={[0, -1.1, 0]} userData={{ noHighlight: true }}>
         <boxGeometry args={[2.3, 0.08, 0.08]} />
-        <meshStandardMaterial color={warm.current > 0.65 ? ON : OFF} emissive={warm.current > 0.65 ? ON : '#000000'} emissiveIntensity={warm.current > 0.65 ? 0.45 : 0} />
+        <meshStandardMaterial color={conducting ? ON : OFF} emissive={conducting ? ON : '#000000'} emissiveIntensity={conducting ? 0.45 : 0} />
       </mesh>
       <Label3D position={[0, 1.65, 0]} small>
         {input ? '필라멘트 예열 후 전자 흐름' : '식는 중...'}
@@ -219,7 +226,7 @@ function MosfetSwitch({ input }: { input: boolean }) {
   });
 
   return (
-    <group position={[0.55, 0.15, 0]}>
+    <group position={[-0.16, 0.15, 0]}>
       <Label3D position={[0, 2.35, 0]} accent>
         MOSFET 스위치
       </Label3D>
@@ -263,11 +270,11 @@ export function MosfetPhysics() {
 
   return (
     <group>
-      <InputPad position={[0, 3.15, 0]} on={input} onToggle={() => setInput(!input)} label="공통 입력 신호" />
+      <InputPad position={[-2.18, 2.78, 0]} on={input} onToggle={() => setInput(!input)} label="공통 입력 신호" />
       <HumanSwitch input={input} />
       <VacuumTubeSwitch input={input} />
       <MosfetSwitch input={input} />
-      <Label3D position={[0, -2.45, 0]} small>
+      <Label3D position={[-2.18, -2.45, 0]} small>
         모두 스위치 역할은 가능하지만, 컴퓨터는 수십억 개를 빠르고 정확하게 복사해야 해서 MOSFET을 씁니다
       </Label3D>
     </group>

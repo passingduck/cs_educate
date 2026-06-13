@@ -13,7 +13,7 @@ const defs: NodeDef[] = [
     id: 'software',
     parentId: null,
     sceneKey: 'softwareProcess',
-    pose: { position: [-1.55, 5.3, 9.7], target: [-1.72, 0.55, 0] },
+    pose: { position: [-2.7, 5.25, 9.8], target: [-2.55, 0.36, 0] },
   },
   {
     id: 'motherboard',
@@ -133,7 +133,7 @@ const defs: NodeDef[] = [
     id: 'mosfet',
     parentId: 'cmos',
     sceneKey: 'mosfetPhysics',
-    pose: { position: [2.9, 3.8, 8.2], target: [-1.85, 0.35, 0] },
+    pose: { position: [2.35, 3.8, 8.4], target: [-2.25, 0.35, 0] },
   },
 ];
 

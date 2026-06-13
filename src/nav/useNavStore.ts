@@ -68,3 +68,19 @@ export const useNavStore = create<NavState>((set, get) => ({
     if (get().hoveredId !== id) set({ hoveredId: id });
   },
 }));
+
+if (typeof window !== 'undefined') {
+  window.addEventListener('hashchange', () => {
+    const id = nodeFromHash();
+    const { currentId, transition } = useNavStore.getState();
+    if (transition !== 'idle' || id === currentId) return;
+
+    const sameScene = NAV_TREE[id].sceneKey === NAV_TREE[currentId].sceneKey;
+    useNavStore.setState((s) => ({
+      currentId: id,
+      hoveredId: null,
+      trail: pathOf(id),
+      snapToken: sameScene ? s.snapToken : s.snapToken + 1,
+    }));
+  });
+}

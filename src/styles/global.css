@@ -510,6 +510,90 @@ body {
   background: rgba(255, 255, 255, 0.1);
 }
 
+.software-source-card {
+  width: 245px;
+  padding: 14px 16px;
+  border-radius: 8px;
+  background: #eef3f8;
+  color: #182331;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.24);
+}
+
+.software-source-card .source-title {
+  margin-bottom: 8px;
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: #255c82;
+}
+
+.software-source-card pre {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  line-height: 1.55;
+  white-space: pre-wrap;
+}
+
+.runtime-legend-card {
+  width: 330px;
+  padding: 11px 14px;
+  border-radius: 8px;
+  border: 1px solid rgba(76, 200, 255, 0.3);
+  background: rgba(7, 10, 16, 0.78);
+  box-shadow: var(--shadow);
+}
+
+.runtime-legend-card strong {
+  display: block;
+  color: var(--accent);
+  font-size: 12px;
+  margin-bottom: 5px;
+}
+
+.runtime-legend-card span {
+  display: block;
+  color: var(--text-1);
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.memory-section-card {
+  width: 235px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(7, 10, 16, 0.72);
+  color: var(--text-0);
+  box-shadow: var(--shadow);
+}
+
+.memory-section-card div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.memory-section-card b {
+  font-family: var(--font-mono);
+  font-size: 13px;
+}
+
+.memory-section-card em {
+  font-style: normal;
+  font-size: 10px;
+  color: var(--text-2);
+}
+
+.memory-section-card span {
+  display: block;
+  color: var(--text-1);
+  font-size: 9.5px;
+  line-height: 1.35;
+}
+
 /* ---------- Sim panel ---------- */
 
 .sim-panel {

@@ -26,13 +26,13 @@ export const NODE_CONTENT: Record<NodeId, NodeContent> = {
   software: {
     id: 'software',
     title: '소프트웨어',
-    subtitle: 'C Program → Process Memory',
+    subtitle: 'AI Agent Code → Process → Hardware',
     description:
-      '소프트웨어 탭은 "코드가 하드웨어 위에서 어디에 놓이는가"를 보여줍니다. 왼쪽의 C 언어 코드는 컴파일러를 지나 기계어와 초기 데이터로 바뀌고, 실행될 때 하나의 **프로세스(Process)** 안에서 **code / data / heap / stack** 네 영역으로 나뉩니다.\n\n왜 나눌까요? 각 영역의 성격이 완전히 다르기 때문입니다. **code**는 실행 명령이라 보통 읽기 전용이고, **data**는 전역 변수처럼 프로그램 전체가 공유하며, **heap**은 실행 중 크기가 늘었다 줄었다 하고, **stack**은 함수 호출마다 잠깐 생겼다 사라집니다. OS와 CPU는 이 성격 차이를 이용해 보호, 캐싱, 배치, 속도를 최적화합니다.\n\n하드웨어와의 연결도 고정 법칙은 아닙니다. **code**는 읽기 전용이라 [[ROM|cpu-boot]]이나 [[SSD|ssd]]에 두기 좋지만, 실행 중에는 [[DRAM|dram]]이나 [[SRAM|cpu-regdemo]]에 복사되어 실행될 수도 있습니다. **data/heap/stack**은 자주 바뀌므로 주로 [[DRAM|dram]]에 있고, CPU가 당장 쓰는 값은 [[레지스터|regfile]]와 [[SRAM 캐시|cpu-regdemo]]로 올라옵니다. 각 블록을 클릭하면 관련 하드웨어로 이동합니다.',
+      'AI agent 개발로 코딩을 시작했다면, agent는 마법이 아니라 **실행 중인 프로그램**입니다. `messages`, tool 결과, JSON 응답, 함수 호출이 모두 컴퓨터 메모리 어딘가에 놓이고, CPU는 그 값을 한 줄씩 읽고 실행합니다.\n\n화면은 왼쪽부터 오른쪽으로 읽으면 됩니다. **agent.py** 같은 사람이 읽는 코드는 실행되면서 하나의 **프로세스(Process)**가 됩니다. 프로세스 안에는 **code / data / heap / stack**이 나뉘어 있고, 아래쪽에는 그것이 실제로 놓이는 [[SSD|ssd]], [[DRAM|dram]], [[CPU|cpu-regdemo]], [[레지스터|regfile]]가 있습니다.\n\n왜 나누나요? 성격이 다르기 때문입니다. **code**는 실행 명령이라 보통 읽기 전용이고, **data**는 모델 이름이나 API 주소 같은 처음부터 있는 값입니다. **heap**은 대화 기록, tool 결과, 생성된 객체처럼 실행 중 커지는 공간이고, **stack**은 `run_agent → call_model → run_tool`처럼 지금 호출 중인 함수의 임시 메모장입니다. 이 구분을 알면 agent가 느려지는 이유, 메모리가 터지는 이유, 캐시와 저장소가 왜 필요한지가 보이기 시작합니다.',
     facts: [
-      '프로세스는 실행 중인 프로그램 1개입니다. 같은 프로그램을 두 번 켜면 code는 공유할 수 있어도 stack/heap은 보통 따로 생깁니다.',
-      'code 영역을 read-only로 두면 버그가 명령어를 덮어쓰는 일을 막을 수 있습니다. 이것이 메모리 보호의 출발점입니다.',
-      '[[컴파일러|compiler]]는 C 코드를 CPU가 이해하는 명령어로 바꾸고, OS는 그 결과를 프로세스 주소 공간에 배치합니다.',
+      '프로세스는 실행 중인 프로그램 1개입니다. 같은 agent 서버를 여러 개 띄우면 code는 같아도 heap과 stack은 요청마다 달라집니다.',
+      '대화 기록이 길어질수록 heap에 쌓이는 객체와 문자열이 늘어납니다. agent 앱에서 "메모리 관리"가 중요해지는 이유입니다.',
+      'CPU는 LLM 추론 자체를 직접 이해하지 않습니다. 프로그램 입장에서는 모델 API 호출도 결국 함수 호출, 네트워크 I/O, 문자열 처리, JSON 파싱의 조합입니다.',
     ],
   },
 
