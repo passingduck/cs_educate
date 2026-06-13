@@ -133,7 +133,7 @@ const defs: NodeDef[] = [
     id: 'mosfet',
     parentId: 'cmos',
     sceneKey: 'mosfetPhysics',
-    pose: { position: [5.2, 3.6, 7.5], target: [0, 0.4, 0] },
+    pose: { position: [2.9, 3.8, 8.2], target: [-1.85, 0.35, 0] },
   },
 ];
 

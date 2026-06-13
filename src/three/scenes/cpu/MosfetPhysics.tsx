@@ -4,160 +4,271 @@ import { useFrame } from '@react-three/fiber';
 import { RoundedBox } from '@react-three/drei';
 import { Label3D } from '../shared/Label3D';
 
-const N_COLOR = '#5aa2ff'; // n형 (전자가 다수)
-const P_COLOR = '#ff7a59'; // p형 (정공이 다수)
+const ON = '#7ee787';
+const OFF = '#3b4250';
+const BLUE = '#5aa2ff';
+const RED = '#ff7a59';
+const AMBER = '#ffb454';
 
-interface DeviceProps {
+function InputPad({
+  position,
+  on,
+  onToggle,
+  label,
+}: {
   position: [number, number, number];
-  type: 'NMOS' | 'PMOS';
-}
-
-/**
- * MOSFET 단면 모형: 기판 + 소스/드레인 도핑 영역 + 산화막 + 게이트.
- * 게이트 클릭 → 전압 인가 → 반전층(채널) 형성 + 캐리어 흐름 애니메이션.
- */
-function MosfetDevice({ position, type }: DeviceProps) {
-  const [gateOn, setGateOn] = useState(type === 'NMOS');
-  const [hover, setHover] = useState(false);
-  const channel = useRef<THREE.Mesh>(null);
-  const channelMat = useRef<THREE.MeshStandardMaterial>(null);
-  const carriers = useRef<THREE.InstancedMesh>(null);
-  const progress = useRef(0);
-
-  const isN = type === 'NMOS';
-  const bodyColor = isN ? '#4a3340' : '#2c3a52'; // p형 기판 / n웰
-  const dopeColor = isN ? N_COLOR : P_COLOR; // n+ / p+
-  const carrierColor = isN ? '#7ec8ff' : '#ffb09a';
-
-  const N_CARRIERS = 14;
-  const dummy = new THREE.Object3D();
-
-  useFrame((state, delta) => {
-    // 채널 형성/소멸
-    progress.current = THREE.MathUtils.clamp(progress.current + (gateOn ? delta * 2.2 : -delta * 2.2), 0, 1);
-    const p = progress.current;
-    if (channel.current && channelMat.current) {
-      channel.current.scale.x = Math.max(0.01, p);
-      channel.current.visible = p > 0.02;
-      channelMat.current.emissiveIntensity = p * 1.6;
-      channelMat.current.opacity = p * 0.9;
-    }
-    // 캐리어 흐름 (소스 → 드레인)
-    if (carriers.current) {
-      carriers.current.visible = p > 0.85;
-      if (p > 0.85) {
-        for (let i = 0; i < N_CARRIERS; i++) {
-          const t = ((state.clock.elapsedTime * 0.55 + i / N_CARRIERS) % 1) * 2.4 - 1.2;
-          dummy.position.set(t, 0.62, ((i * 37) % 5) * 0.1 - 0.25);
-          dummy.scale.setScalar(1);
-          dummy.updateMatrix();
-          carriers.current.setMatrixAt(i, dummy.matrix);
-        }
-        carriers.current.instanceMatrix.needsUpdate = true;
-      }
-    }
-  });
-
+  on: boolean;
+  onToggle: () => void;
+  label: string;
+}) {
   return (
     <group position={position}>
-      {/* 기판 (유리처럼 반투명) */}
-      <RoundedBox args={[3.6, 1.3, 1.6]} radius={0.06} smoothness={4} position={[0, 0, 0]} userData={{ noHighlight: true }}>
-        <meshPhysicalMaterial color={bodyColor} roughness={0.35} metalness={0.1} transparent opacity={0.9} clearcoat={0.6} clearcoatRoughness={0.2} />
-      </RoundedBox>
-      <Label3D position={[0, -0.95, 0.5]} small>
-        {isN ? 'p형 기판 (정공 다수)' : 'n형 웰 (전자 다수)'}
-      </Label3D>
-
-      {/* 소스 / 드레인 (고농도 도핑) */}
-      {[-1.25, 1.25].map((x) => (
-        <RoundedBox key={x} args={[1.0, 0.52, 1.4]} radius={0.05} smoothness={4} position={[x, 0.42, 0]} userData={{ noHighlight: true }}>
-          <meshStandardMaterial color={dopeColor} roughness={0.38} metalness={0.2} emissive={dopeColor} emissiveIntensity={0.22} />
-        </RoundedBox>
-      ))}
-      <Label3D position={[-1.25, 1.45, 0]} small>
-        {`소스 (${isN ? 'n+' : 'p+'})`}
-      </Label3D>
-      <Label3D position={[1.25, 1.45, 0]} small>
-        {`드레인 (${isN ? 'n+' : 'p+'})`}
-      </Label3D>
-
-      {/* 산화막 (절연, 유리) */}
-      <mesh position={[0, 0.71, 0]} userData={{ noHighlight: true }}>
-        <boxGeometry args={[1.4, 0.08, 1.45]} />
-        <meshPhysicalMaterial color="#eaf2ff" roughness={0.08} transparent opacity={0.45} clearcoat={1} clearcoatRoughness={0.03} ior={1.46} />
-      </mesh>
-
-      {/* 게이트 전극 — 클릭으로 전압 토글 */}
       <RoundedBox
-        args={[1.4, 0.36, 1.45]}
-        radius={0.05}
+        args={[1.0, 0.42, 0.12]}
+        radius={0.08}
         smoothness={4}
-        position={[0, 0.95, 0]}
         onClick={(e) => {
           e.stopPropagation();
-          setGateOn(!gateOn);
+          onToggle();
         }}
-        onPointerOver={(e) => {
-          e.stopPropagation();
-          setHover(true);
+        onPointerOver={() => {
           document.body.style.cursor = 'pointer';
         }}
         onPointerOut={() => {
-          setHover(false);
           document.body.style.cursor = 'auto';
         }}
       >
         <meshStandardMaterial
-          color="#d4a843"
-          metalness={0.92}
-          roughness={0.25}
-          emissive={gateOn ? '#ffd97a' : hover ? '#ffd97a' : '#000000'}
-          emissiveIntensity={gateOn ? 0.9 : hover ? 0.3 : 0}
+          color={on ? ON : OFF}
+          emissive={on ? ON : '#000000'}
+          emissiveIntensity={on ? 0.9 : 0}
+          roughness={0.35}
+          metalness={0.2}
         />
       </RoundedBox>
-      <Label3D position={[0, 1.75, 0]} accent>
-        {`게이트 ${isN ? (gateOn ? '+V ON' : '0V OFF') : gateOn ? '0V ON' : '+V OFF'} — 클릭`}
+      <Label3D position={[0, 0.52, 0]} small>
+        {`${label}: ${on ? '1 / 열기' : '0 / 닫기'} — 클릭`}
+      </Label3D>
+    </group>
+  );
+}
+
+function SignalDots({ on, speed, y = 0, z = 0 }: { on: boolean; speed: number; y?: number; z?: number }) {
+  const dots = useRef<THREE.InstancedMesh>(null);
+  const dummy = useRef(new THREE.Object3D());
+
+  useFrame((state) => {
+    if (!dots.current) return;
+    dots.current.visible = on;
+    if (!on) return;
+    for (let i = 0; i < 10; i++) {
+      const t = ((state.clock.elapsedTime * speed + i / 10) % 1) * 2.2 - 1.1;
+      dummy.current.position.set(t, y, z);
+      dummy.current.scale.setScalar(0.8 + Math.sin((t + 1.1) * Math.PI) * 0.25);
+      dummy.current.updateMatrix();
+      dots.current.setMatrixAt(i, dummy.current.matrix);
+    }
+    dots.current.instanceMatrix.needsUpdate = true;
+  });
+
+  return (
+    <instancedMesh ref={dots} args={[undefined, undefined, 10]} visible={false} userData={{ noHighlight: true }}>
+      <sphereGeometry args={[0.055, 10, 10]} />
+      <meshStandardMaterial color={ON} emissive={ON} emissiveIntensity={1.8} toneMapped={false} />
+    </instancedMesh>
+  );
+}
+
+function HumanSwitch({ input }: { input: boolean }) {
+  const [reported, setReported] = useState(false);
+  const [mistake, setMistake] = useState(false);
+  const timer = useRef<number | null>(null);
+  const group = useRef<THREE.Group>(null);
+  const lastInput = useRef(input);
+
+  useFrame((state) => {
+    if (input !== lastInput.current) {
+      lastInput.current = input;
+      if (timer.current !== null) window.clearTimeout(timer.current);
+      setMistake(false);
+      timer.current = window.setTimeout(() => {
+        const shouldMistake = input && Math.floor(state.clock.elapsedTime * 10) % 5 === 0;
+        setReported(shouldMistake ? !input : input);
+        setMistake(shouldMistake);
+      }, 620);
+    }
+    if (group.current) group.current.rotation.z = Math.sin(state.clock.elapsedTime * 2.2) * 0.025;
+  });
+
+  return (
+    <group ref={group} position={[-4.0, 0.15, 0]}>
+      <Label3D position={[0, 2.35, 0]} accent>
+        사람 스위치
+      </Label3D>
+      <Label3D position={[0, -1.7, 0]} small>
+        느림 · 피곤하면 실수
       </Label3D>
 
-      {/* 반전층 (채널) — 게이트 전압으로 형성 */}
-      <mesh ref={channel} position={[0, 0.62, 0]} visible={false} userData={{ noHighlight: true }}>
-        <boxGeometry args={[1.5, 0.1, 1.35]} />
+      <mesh position={[0, 0.2, 0]} userData={{ noHighlight: true }}>
+        <capsuleGeometry args={[0.28, 0.82, 8, 16]} />
+        <meshStandardMaterial color="#6f88a8" roughness={0.45} />
+      </mesh>
+      <mesh position={[0, 0.92, 0]} userData={{ noHighlight: true }}>
+        <sphereGeometry args={[0.24, 18, 18]} />
+        <meshStandardMaterial color="#d8b08a" roughness={0.42} />
+      </mesh>
+      {[-0.42, 0.42].map((x) => (
+        <mesh key={x} position={[x, -0.52, 0]} rotation={[0, 0, x > 0 ? -0.2 : 0.2]} userData={{ noHighlight: true }}>
+          <boxGeometry args={[0.13, 0.72, 0.13]} />
+          <meshStandardMaterial color="#2d3644" roughness={0.5} />
+        </mesh>
+      ))}
+      <mesh position={[-0.42, 0.55, 0]} rotation={[0, 0, reported ? 0.85 : -0.35]} userData={{ noHighlight: true }}>
+        <boxGeometry args={[0.1, 0.9, 0.1]} />
+        <meshStandardMaterial color="#b8c3d1" roughness={0.35} />
+      </mesh>
+      <mesh position={[-0.75, reported ? 1.0 : 0.28, 0]} rotation={[0, 0, reported ? 0.85 : -0.35]} userData={{ noHighlight: true }}>
+        <boxGeometry args={[0.52, 0.34, 0.04]} />
         <meshStandardMaterial
-          ref={channelMat}
-          color={dopeColor}
-          emissive={dopeColor}
-          emissiveIntensity={0}
-          transparent
-          opacity={0}
+          color={reported ? BLUE : RED}
+          emissive={reported ? BLUE : RED}
+          emissiveIntensity={0.35}
+          roughness={0.42}
+        />
+      </mesh>
+      <SignalDots on={reported} speed={0.45} y={-0.98} />
+      <mesh position={[0, -0.98, 0]} userData={{ noHighlight: true }}>
+        <boxGeometry args={[2.3, 0.08, 0.08]} />
+        <meshStandardMaterial color={reported ? ON : OFF} emissive={reported ? ON : '#000000'} emissiveIntensity={reported ? 0.45 : 0} />
+      </mesh>
+      <Label3D position={[0, 1.55, 0]} small>
+        {mistake ? '앗, 반대로 들었습니다' : reported === input ? '보고 따라 하는 중' : '반응 대기 중...'}
+      </Label3D>
+    </group>
+  );
+}
+
+function VacuumTubeSwitch({ input }: { input: boolean }) {
+  const glow = useRef<THREE.MeshStandardMaterial>(null);
+  const plate = useRef<THREE.Mesh>(null);
+  const warm = useRef(0);
+
+  useFrame((state, delta) => {
+    warm.current = THREE.MathUtils.clamp(warm.current + (input ? delta * 1.2 : -delta * 0.75), 0, 1);
+    if (glow.current) glow.current.emissiveIntensity = 0.25 + warm.current * 1.6 + Math.sin(state.clock.elapsedTime * 9) * 0.08;
+    if (plate.current) plate.current.rotation.y += delta * 0.35;
+  });
+
+  return (
+    <group position={[-1.7, 0.15, 0]}>
+      <Label3D position={[0, 2.35, 0]} accent>
+        진공관 스위치
+      </Label3D>
+      <Label3D position={[0, -1.7, 0]} small>
+        가능하지만 큼 · 뜨거움 · 전력 큼
+      </Label3D>
+
+      <mesh position={[0, 0.35, 0]} userData={{ noHighlight: true }}>
+        <cylinderGeometry args={[0.58, 0.72, 2.35, 36]} />
+        <meshPhysicalMaterial color="#cfe6ff" transparent opacity={0.28} roughness={0.04} clearcoat={1} clearcoatRoughness={0.02} />
+      </mesh>
+      <mesh position={[0, -0.95, 0]} userData={{ noHighlight: true }}>
+        <cylinderGeometry args={[0.55, 0.65, 0.24, 36]} />
+        <meshStandardMaterial color="#4e5664" metalness={0.75} roughness={0.25} />
+      </mesh>
+      <mesh ref={plate} position={[0, 0.48, 0]} userData={{ noHighlight: true }}>
+        <boxGeometry args={[0.5, 1.24, 0.08]} />
+        <meshStandardMaterial color="#9aa7b8" metalness={0.8} roughness={0.24} />
+      </mesh>
+      <mesh position={[0, -0.18, 0]} userData={{ noHighlight: true }}>
+        <torusGeometry args={[0.28, 0.03, 10, 28]} />
+        <meshStandardMaterial
+          ref={glow}
+          color={AMBER}
+          emissive={AMBER}
+          emissiveIntensity={0.4}
           toneMapped={false}
         />
       </mesh>
+      <SignalDots on={warm.current > 0.65} speed={0.8} y={0.36} />
+      <mesh position={[0, -1.1, 0]} userData={{ noHighlight: true }}>
+        <boxGeometry args={[2.3, 0.08, 0.08]} />
+        <meshStandardMaterial color={warm.current > 0.65 ? ON : OFF} emissive={warm.current > 0.65 ? ON : '#000000'} emissiveIntensity={warm.current > 0.65 ? 0.45 : 0} />
+      </mesh>
+      <Label3D position={[0, 1.65, 0]} small>
+        {input ? '필라멘트 예열 후 전자 흐름' : '식는 중...'}
+      </Label3D>
+    </group>
+  );
+}
 
-      {/* 캐리어 (전자/정공) 흐름 */}
-      <instancedMesh ref={carriers} args={[undefined, undefined, N_CARRIERS]} visible={false} userData={{ noHighlight: true }}>
-        <sphereGeometry args={[0.05, 8, 8]} />
-        <meshStandardMaterial color={carrierColor} emissive={carrierColor} emissiveIntensity={2.4} toneMapped={false} />
-      </instancedMesh>
+function MosfetSwitch({ input }: { input: boolean }) {
+  const channel = useRef<THREE.Mesh>(null);
+  const mat = useRef<THREE.MeshStandardMaterial>(null);
+  const progress = useRef(0);
 
-      <Label3D position={[0, 0.25, 0.95]} small>
-        {gateOn ? `반전층(채널) 형성 — ${isN ? '전자' : '정공'} 이동` : '채널 없음 — 전류 차단'}
+  useFrame((_, delta) => {
+    progress.current = THREE.MathUtils.clamp(progress.current + (input ? delta * 7 : -delta * 7), 0, 1);
+    const p = progress.current;
+    if (channel.current && mat.current) {
+      channel.current.visible = p > 0.02;
+      channel.current.scale.x = Math.max(0.01, p);
+      mat.current.opacity = p * 0.92;
+      mat.current.emissiveIntensity = p * 1.8;
+    }
+  });
+
+  return (
+    <group position={[0.55, 0.15, 0]}>
+      <Label3D position={[0, 2.35, 0]} accent>
+        MOSFET 스위치
+      </Label3D>
+      <Label3D position={[0, -1.7, 0]} small>
+        작음 · 빠름 · 정확함 · 대량 복사
       </Label3D>
 
-      {/* 디바이스 이름 + 구조 비유 */}
-      <Label3D position={[0, -1.5, 0.4]} accent>
-        {isN ? 'NMOS (n-p-n ↔ npn 비유)' : 'PMOS (p-n-p ↔ pnp 비유)'}
+      <RoundedBox args={[2.4, 1.0, 1.15]} radius={0.07} smoothness={4} position={[0, 0, 0]} userData={{ noHighlight: true }}>
+        <meshStandardMaterial color="#2c3a52" roughness={0.35} metalness={0.12} />
+      </RoundedBox>
+      {[-0.8, 0.8].map((x) => (
+        <RoundedBox key={x} args={[0.55, 0.42, 1.0]} radius={0.05} smoothness={4} position={[x, 0.36, 0]} userData={{ noHighlight: true }}>
+          <meshStandardMaterial color={BLUE} emissive={BLUE} emissiveIntensity={0.24} roughness={0.36} metalness={0.18} />
+        </RoundedBox>
+      ))}
+      <mesh position={[0, 0.72, 0]} userData={{ noHighlight: true }}>
+        <boxGeometry args={[1.0, 0.07, 1.05]} />
+        <meshPhysicalMaterial color="#eaf2ff" roughness={0.08} transparent opacity={0.48} clearcoat={1} />
+      </mesh>
+      <RoundedBox args={[1.0, 0.25, 1.05]} radius={0.04} smoothness={4} position={[0, 0.95, 0]} userData={{ noHighlight: true }}>
+        <meshStandardMaterial color="#d4a843" emissive={input ? AMBER : '#000000'} emissiveIntensity={input ? 0.8 : 0} metalness={0.88} roughness={0.22} />
+      </RoundedBox>
+      <mesh ref={channel} position={[0, 0.52, 0]} visible={false} userData={{ noHighlight: true }}>
+        <boxGeometry args={[1.18, 0.08, 0.95]} />
+        <meshStandardMaterial ref={mat} color={ON} emissive={ON} transparent opacity={0} toneMapped={false} />
+      </mesh>
+      <SignalDots on={input} speed={2.6} y={0.53} />
+      <mesh position={[0, -1.1, 0]} userData={{ noHighlight: true }}>
+        <boxGeometry args={[2.3, 0.08, 0.08]} />
+        <meshStandardMaterial color={input ? ON : OFF} emissive={input ? ON : '#000000'} emissiveIntensity={input ? 0.55 : 0} />
+      </mesh>
+      <Label3D position={[0, 1.55, 0]} small>
+        {input ? '전기장으로 채널 즉시 형성' : '채널 없음 — 차단'}
       </Label3D>
     </group>
   );
 }
 
 export function MosfetPhysics() {
+  const [input, setInput] = useState(true);
+
   return (
     <group>
-      <MosfetDevice position={[-2.6, 0.4, 0]} type="NMOS" />
-      <MosfetDevice position={[2.6, 0.4, 0]} type="PMOS" />
-      <Label3D position={[0, 3.0, 0]} small>
-        게이트를 클릭해 전압을 걸어 보세요 — 전기장이 채널을 만듭니다
+      <InputPad position={[0, 3.15, 0]} on={input} onToggle={() => setInput(!input)} label="공통 입력 신호" />
+      <HumanSwitch input={input} />
+      <VacuumTubeSwitch input={input} />
+      <MosfetSwitch input={input} />
+      <Label3D position={[0, -2.45, 0]} small>
+        모두 스위치 역할은 가능하지만, 컴퓨터는 수십억 개를 빠르고 정확하게 복사해야 해서 MOSFET을 씁니다
       </Label3D>
     </group>
   );

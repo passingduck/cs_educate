@@ -19,6 +19,12 @@ interface NavState {
 const FADE_MS = 300;
 const SETTLE_MS = 650;
 
+function nodeFromHash(): NodeId {
+  if (typeof window === 'undefined') return 'computer';
+  const id = window.location.hash.slice(1) as NodeId;
+  return id in NAV_TREE ? id : 'computer';
+}
+
 /** 다음 trail 계산: 이미 경로에 있으면 거기까지 자르고(줌아웃), 아니면 끝에 추가(드릴다운) */
 function nextTrail(trail: NodeId[], id: NodeId): NodeId[] {
   if (NAV_TREE[id].parentId === null || rootOf(trail[0]) !== rootOf(id)) return pathOf(id);
@@ -28,11 +34,13 @@ function nextTrail(trail: NodeId[], id: NodeId): NodeId[] {
   return [...trail, id];
 }
 
+const initialId = nodeFromHash();
+
 export const useNavStore = create<NavState>((set, get) => ({
-  currentId: 'computer',
+  currentId: initialId,
   hoveredId: null,
   transition: 'idle',
-  trail: pathOf('computer'),
+  trail: pathOf(initialId),
   snapToken: 0,
 
   navigateTo: (id) => {
@@ -40,6 +48,7 @@ export const useNavStore = create<NavState>((set, get) => ({
     if (transition !== 'idle' || id === currentId) return;
 
     const newTrail = nextTrail(trail, id);
+    if (typeof window !== 'undefined') window.history.replaceState(null, '', `#${id}`);
     const sameScene = NAV_TREE[id].sceneKey === NAV_TREE[currentId].sceneKey;
     if (sameScene) {
       // 같은 씬 안에서는 카메라만 부드럽게 이동
